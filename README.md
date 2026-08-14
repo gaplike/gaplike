@@ -116,8 +116,6 @@ Figure-to-script map: every `corner_*`, `upsilon_xi*` and `overview` come
 from `make_figures.py`; the three standalone scripts above cover the
 scenario-C corner, the A/B/C overlay corner and the covariance colormaps;
 `fig_cg_scaling.py` + `_mkfig.py` produce the dense-vs-CG scaling figure.
-`results/cg_scaling.json` ships with the reference timings (2 cores of an
-Intel Xeon at 2.80 GHz) so `_mkfig.py` works out of the box.
 
 ## The likelihood hierarchy
 
