@@ -79,10 +79,12 @@ def sigma_oo(eig, obs):
     obs = _obs_array(obs)
     m = obs.size
 
+    eig_r = eig[: n // 2 + 1]           # real-input half spectrum
+
     def mv(v):
         z = np.zeros(n)
         z[obs] = v
-        return np.real(np.fft.ifft(eig * np.fft.fft(z)))[obs]
+        return np.fft.irfft(eig_r * np.fft.rfft(z), n)[obs]
 
     return LinearOperator((m, m), matvec=mv, dtype=float)
 
@@ -97,11 +99,12 @@ def whittle_preconditioner(eig, obs, floor_rel=1e-6):
     n = eig.size
     obs = _obs_array(obs)
     m = obs.size
+    ef_r = ef[: n // 2 + 1]             # real-input half spectrum
 
     def mv(v):
         z = np.zeros(n)
         z[obs] = v
-        return np.real(np.fft.ifft(np.fft.fft(z) / ef))[obs]
+        return np.fft.irfft(np.fft.rfft(z) / ef_r, n)[obs]
 
     return LinearOperator((m, m), matvec=mv, dtype=float)
 
