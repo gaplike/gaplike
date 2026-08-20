@@ -21,7 +21,7 @@ model is built in; any user-defined PSD components and any waveform work the
 same way.
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/<user>/gaplike/main/assets/demo.gif" width="600"/>
+  <img src="https://raw.githubusercontent.com/FedericoPozzoli/gaplike/main/assets/gap_leakage_web.gif" width="600"/>
 </p>
 
 ## Install
