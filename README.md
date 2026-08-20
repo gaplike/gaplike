@@ -20,6 +20,10 @@ Only `numpy` and `scipy` are required. The two-component LISA TDI-2 A/E noise
 model is built in; any user-defined PSD components and any waveform work the
 same way.
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/<user>/gaplike/main/assets/demo.gif" width="600"/>
+</p>
+
 ## Install
 
 ```bash
