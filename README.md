@@ -24,7 +24,7 @@ same way.
 
 ```bash
 uv venv && uv pip install -e .          # library only (numpy + scipy)
-uv pip install -e ".[pe]"               # + emcee, corner, matplotlib (paper pipeline)
+uv pip install -e ".[pe]"               # + emcee, corner, matplotlib (paper pipeline, notebooks)
 uv pip install -e ".[dev]"              # + pytest
 ```
 
@@ -32,8 +32,28 @@ uv pip install -e ".[dev]"              # + pytest
 package).
 
 The MBHB waveform adapter additionally needs
-[lisabeta](https://gitlab.in2p3.fr/marsat/lisabeta) (optional; only imported
-if you use `gaplike.waveform.lisabeta_mbhb_ae`).
+[lisabeta](https://gitlab.in2p3.fr/marsat/lisabeta), which is **not** pulled
+in by any of the lines above:
+
+```bash
+uv pip install -e ".[pe,mbhb]"          # + lisabeta (from PyPI)
+```
+
+`[mbhb]` is a separate extra because exactly one factory needs it. Everything
+else — every likelihood, every gap builder, the CG solver, the paper figures
+from the cached chains, and `notebooks/exact_inference_demo.ipynb` — runs
+without lisabeta, and the import happens inside
+`gaplike.waveform.lisabeta_mbhb_ae`, so a missing install fails only there.
+
+Installing from PyPI gives wheels. Building the GitLab sources instead
+requires FFTW and a CMake toolchain, and the FFTW location has to be handed
+to the build explicitly:
+
+```bash
+brew install fftw                       # macOS;  apt install libfftw3-dev on Debian/Ubuntu
+SKBUILD_CMAKE_DEFINE="FFTW_ROOT=$(brew --prefix fftw)" \
+  uv pip install "lisabeta @ git+https://gitlab.in2p3.fr/marsat/lisabeta.git"
+```
 
 ## Quickstart
 
@@ -51,7 +71,8 @@ mask = gl.gaps.periodic_mask(n, 10, 50)              # comb: 150 s out of 750 s
 gate = gl.gaps.gate_from_mask(mask, dt, taper_s=0.0) # rectangular (or tapered)
 w    = gl.gaps.effective_window(gate, gl.gaps.segment_window(n, 0.05))
 
-# --- 2. noise model: two components, lam = log10 amplitude deviations ------
+# --- 2. noise model: two components; lam = log10 deviations of the component
+#        POWERS, so Sigma(lam) = 10^(lam_0) C_0 + 10^(lam_1) C_1, truth at 0
 comps = list(gl.psd.lisa_tdi2_ae().values())         # [S_tm(f), S_oms(f)]
 S_tot = gl.psd.one_sided_grid(lambda f: sum(c(f) for c in comps), n, dt)
 x = gl.simulate.noise_td(S_tot, dt, np.random.default_rng(0), nch=2)
@@ -74,11 +95,17 @@ quad, iters = rcg.quad_form((0.0, 0.0), L_td.transform(x))
 # or stochastic Lanczos quadrature in general
 ```
 
+Each tier carries its own constant offset from its internal normalization, so
+log-likelihoods are **not** comparable across tiers — only *differences*
+(between parameter points, or between templates) are meaningful.
+
 Templates from any waveform: wrap a frequency-domain callable in
 `gl.Waveform(fd_func, n, dt)` and use `.td(theta)`; then
 `resid = L.transform(data_td - h_td)`. For LISA MBHBs,
 `gl.waveform.lisabeta_mbhb_ae(n, dt, f_lo, f_hi)` gives the (A, E) TDI-2
-IMRPhenomHM waveform used in the paper.
+IMRPhenomHM waveform used in the paper — with any source parameters, any
+parametrization (`to_params`) and any approximant (`wf_kw`); see
+`notebooks/mbhb_gaps_demo.ipynb`.
 
 ## Reproducing the paper figures
 
@@ -127,14 +154,17 @@ scenario-C corner, the A/B/C overlay corner and the covariance colormaps;
 | `DiagonalLikelihood.whittle` | raw PSD (optionally × window power W₂) | O(N_b) | Whittle / "normalizing constant" approximation |
 | `gaplike.cg` / `RestrictedCG` | same model as `TimeDomainExact`, matrix-free | 4 FFTs × a few hundred iterations, **no setup, no storage** | exact quadratic forms to a chosen tolerance; any number of components; determinant not included |
 
-Both pencil classes (`TimeDomainExact`, `FullCovariance`) assume the
-covariance is **linear in exactly two component powers**,
-`Sigma(lam) = 10^(lam_0) C_0 + 10^(lam_1) C_1` (e.g. LISA TM + OMS): one
-simultaneous diagonalization then makes every likelihood evaluation, Fisher
-matrix and determinant closed-form. The diagonal tiers and the conjugate
-gradient route accept any number of components; `gaplike.cg` is the escape
-hatch when the two-component structure is not available (spline-knot
-spectra, extra components) or when m is too large to factorize anything.
+Noise parameters are the same throughout: `lam_k` are log10 deviations of the
+component **powers** from their reference values, `Sigma(lam) = sum_k
+10^(lam_k) C_k`, with the truth at `lam = 0`.
+
+Both pencil classes (`TimeDomainExact`, `FullCovariance`) additionally assume
+the covariance is linear in **exactly two** components: one simultaneous
+diagonalization then makes every likelihood evaluation, Fisher matrix and
+determinant closed-form. The diagonal tiers and the conjugate gradient route
+accept any number of components; `gaplike.cg` is the escape hatch when the
+two-component structure is not available (spline-knot spectra, extra
+components) or when m is too large to factorize anything.
 
 The paper's analytic mis-specification machinery (Fisher blocks under the
 true windowed covariance, leading-order biases, MLE scatter, the Υ/Ξ
@@ -147,7 +177,8 @@ diagnostics, KL pseudo-true parameters, Godambe–White sandwich) lives in
 |---|---|
 | `src/gaplike/` | the package: `gaps`, `psd`, `covariance`, `simulate`, `likelihood`, `cg`, `waveform` |
 | `tests/` | unit tests (small-N brute-force exactness of every tier, CG vs dense) + machine-precision regression against the paper pipeline |
-| `notebooks/exact_inference_demo.ipynb` | executable end-to-end example (no lisabeta): gapped two-channel LISA noise + toy chirp, joint 4-parameter PE with `TimeDomainExact` and `FullCovariance`, comparison corner |
+| `notebooks/exact_inference_demo.ipynb` | executable end-to-end example (**no lisabeta**): gapped two-channel LISA noise + toy chirp, joint 4-parameter PE with `TimeDomainExact` and `FullCovariance`, comparison corner |
+| `notebooks/mbhb_gaps_demo.ipynb` | inject an MBHB with arbitrary parameters (lisabeta), compare five gap configurations, and set up a full 13-parameter inference ready to launch |
 | `paper/` | full paper reproduction (scenarios A/B/C, PE, every figure incl. the CG scaling benchmark) — see `paper/README.md` |
 
 ## Tests
@@ -163,9 +194,9 @@ windows, covariances, noise realization and all likelihood values to ~1e-9.
 
 ## Citing
 
-If you use `gaplike`, please cite Burke & Pozzoli (2026), *Zurückbleiben
-bitte: the impact of window functions on noise and signal parameter
-inference* (in prep.).
+If you use `gaplike`, please cite the software (see `CITATION.cff`) together
+with Burke & Pozzoli (2026), *Zurückbleiben bitte: the impact of window
+functions on noise and signal parameter inference* (in prep.).
 
 ## License
 
