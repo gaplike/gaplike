@@ -1,4 +1,11 @@
-# gaplike
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/_static/logo-wordmark-dark.svg">
+  <img alt="gaplike" src="docs/_static/logo-wordmark.svg" width="330">
+</picture>
+
+[![tests](https://github.com/FedericoPozzoli/gaplike/actions/workflows/tests.yml/badge.svg)](https://github.com/FedericoPozzoli/gaplike/actions/workflows/tests.yml)
+[![docs](https://github.com/FedericoPozzoli/gaplike/actions/workflows/docs.yml/badge.svg)](https://github.com/FedericoPozzoli/gaplike/actions/workflows/docs.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **Inference on gapped / windowed stationary Gaussian data.**
 
@@ -12,6 +19,13 @@ components, simultaneous diagonalization) or **matrix-free at any scale by
 preconditioned conjugate gradients** (`gaplike.cg`: the covariance is never
 formed, one solve is a few hundred FFT pairs).
 
+<img src="assets/gap_leakage_web.gif" width="600"/>
+
+*Four acts on the same record: a raw cut, then a taper on the record edges,
+then sharp-edged gaps, then tapered gap edges. Watch the spectral kernel, the
+modelled PSD and the bin-to-bin correlation matrix move together. Rendered by
+[`notebooks/anim_leakage.py`](notebooks/anim_leakage.py).*
+
 Companion package to *"Zurückbleiben bitte: the impact of window functions on
 noise and signal parameter inference"* (O. Burke & F. Pozzoli); the `paper/`
 folder reproduces every figure of that paper.
@@ -20,20 +34,48 @@ Only `numpy` and `scipy` are required. The two-component LISA TDI-2 A/E noise
 model is built in; any user-defined PSD components and any waveform work the
 same way.
 
-<p align="center">
-  <img src="https://raw.githubusercontent.com/FedericoPozzoli/gaplike/main/assets/gap_leakage_web.gif" width="600"/>
-</p>
+**Documentation: <https://federicopozzoli.github.io/gaplike/>**
 
 ## Install
 
+`gaplike` needs only `numpy` and `scipy`. Pick **one** environment and install
+everything into it: the commonest way to lose an afternoon here is to install
+with one tool and run with another.
+
+### Into an environment you already have (conda, system Python, ...)
+
 ```bash
-uv venv && uv pip install -e .          # library only (numpy + scipy)
-uv pip install -e ".[pe]"               # + emcee, corner, matplotlib (paper pipeline, notebooks)
-uv pip install -e ".[dev]"              # + pytest
+python -m pip install -e ".[pe,dev,docs]"
+python -m sphinx -b html docs docs/_build/html
+python -m pytest
 ```
 
-(or the same lines with plain `pip`; there is nothing uv-specific in the
-package).
+The `python -m` form ties the installer and the command to the same
+interpreter, which is what keeps them in step.
+
+### Into a fresh virtual environment
+
+```bash
+uv venv
+source .venv/bin/activate          # <- do not skip this
+uv pip install -e ".[pe,dev,docs]"
+sphinx-build -b html docs docs/_build/html
+pytest
+```
+
+Without the `activate` line, `uv` installs into `.venv` while `sphinx-build`
+and `pytest` still come from whatever is on your `PATH`, and you get a
+confusing "module not found" for something you just watched install.
+`uv run <command>` does the same job without activating.
+
+### Extras
+
+| extra | pulls in | needed for |
+|---|---|---|
+| `pe` | `emcee`, `corner`, `matplotlib` | sampling, the notebooks, every paper figure |
+| `dev` | `pytest` | the test suite |
+| `docs` | `sphinx`, `furo`, `myst-parser`, `sphinx-copybutton` | building the documentation |
+| `mbhb` | `lisabeta` | the MBHB waveform adapter only |
 
 The MBHB waveform adapter additionally needs
 [lisabeta](https://gitlab.in2p3.fr/marsat/lisabeta), which is **not** pulled
@@ -147,6 +189,8 @@ Figure-to-script map: every `corner_*`, `upsilon_xi*` and `overview` come
 from `make_figures.py`; the three standalone scripts above cover the
 scenario-C corner, the A/B/C overlay corner and the covariance colormaps;
 `fig_cg_scaling.py` + `_mkfig.py` produce the dense-vs-CG scaling figure.
+`results/cg_scaling.json` ships with the reference timings (2 cores of an
+Intel Xeon at 2.80 GHz) so `_mkfig.py` works out of the box.
 
 ## The likelihood hierarchy
 

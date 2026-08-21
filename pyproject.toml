@@ -37,6 +37,8 @@ Repository = "https://github.com/FedericoPozzoli/gaplike"
 # the cached chains, and to run the notebooks
 pe = ["emcee>=3", "corner", "matplotlib"]
 dev = ["pytest>=7"]
+# building the documentation (docs/) -- see .github/workflows/docs.yml
+docs = ["sphinx>=7", "furo", "myst-parser>=2", "sphinx-copybutton"]
 # MBHB waveform adapter (gaplike.waveform.lisabeta_mbhb_ae) only.  Kept out of
 # `pe` because exactly one factory needs it: every likelihood, the CG solver
 # and the paper figures from the cached chains work without it, and the import

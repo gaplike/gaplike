@@ -5,5 +5,7 @@ build/
 dist/
 .pytest_cache/
 .ipynb_checkpoints/
-paper/figures/*.png
-paper/figures/*.pdf
+.venv/
+venv/
+.DS_Store
+docs/_build/
