@@ -28,7 +28,10 @@ class Waveform:
     ----------
     fd_func : callable
         ``theta -> (nch, n//2 + 1)`` complex CFT waveform on the rfft grid.
-    n, dt : grid length and cadence.
+    n : int
+        Length of the time grid.
+    dt : float
+        Sample cadence [s].
     """
 
     def __init__(self, fd_func, n, dt):

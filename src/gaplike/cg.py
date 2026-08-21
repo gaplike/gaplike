@@ -115,13 +115,36 @@ def solve(eig, obs, b, rtol=1e-8, x0=None, maxiter=None,
 
     Parameters
     ----------
-    eig : (n,) circulant eigenvalues of the full covariance
-    obs : observed-sample indices, or a boolean/gate mask over the full grid
-    b : (m,) right-hand side on the observed samples
-    rtol : relative residual tolerance ``||Sigma_OO u - b|| / ||b||``
-    x0 : optional warm start (e.g. the previously accepted solution in MCMC)
+    eig : ndarray, shape (n,)
+        Circulant eigenvalues of the full covariance.
+    obs : ndarray
+        Observed-sample indices, or a boolean/gate mask over the full grid.
+    b : ndarray, shape (m,)
+        Right-hand side, on the observed samples.
+    rtol : float, optional
+        Relative residual tolerance ``||Sigma_OO u - b|| / ||b||``.
+    x0 : ndarray, optional
+        Warm start -- e.g. the previously accepted solution in an MCMC, which
+        typically cuts the iteration count by around 20%.
+    maxiter : int, optional
+        Iteration cap; ``None`` leaves it to SciPy.
+    floor_rel : float, optional
+        Preconditioner eigenvalue floor, as a fraction of the maximum.
+    precondition : bool, optional
+        Set ``False`` to run unpreconditioned -- far slower, and useful mainly
+        for measuring what the preconditioner buys.
 
-    Returns ``(u, iterations)``.
+    Returns
+    -------
+    u : ndarray, shape (m,)
+        Solution of ``Sigma_OO u = b``.
+    iterations : int
+        Number of iterations taken.
+
+    Raises
+    ------
+    RuntimeError
+        If the iteration does not reach ``rtol`` within ``maxiter``.
     """
     obs = _obs_array(obs)
     A = sigma_oo(eig, obs)
@@ -179,9 +202,17 @@ class RestrictedCG:
 
     Parameters
     ----------
-    mask : observed-sample mask/gate (strictly positive = observed), length n
-    components : PSD components (callables or two-sided grids)
-    dt : cadence [s]
+    mask : ndarray, shape (n,)
+        Observed-sample mask or gate; strictly-positive entries are observed.
+    components : sequence of callable or ndarray
+        PSD components: callables of ``f``, or precomputed two-sided grids.
+        Any number of them -- unlike the pencil classes, which need exactly two.
+    dt : float
+        Sample cadence [s].
+    rtol : float, optional
+        Relative residual tolerance passed to :func:`solve`.
+    floor_rel : float, optional
+        Preconditioner eigenvalue floor, as a fraction of the maximum.
     """
 
     def __init__(self, mask, components, dt, rtol=1e-8, floor_rel=1e-6):

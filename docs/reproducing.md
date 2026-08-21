@@ -1,0 +1,81 @@
+# Reproducing the paper
+
+All commands run from `paper/` with the `[pe]` extra installed. The cached
+posterior chains ship in `paper/results/`, so every chain-based figure
+regenerates in minutes — without lisabeta and without sampling. lisabeta and
+the from-scratch runs are needed only to regenerate the chains themselves.
+
+## Figures from the cached chains
+
+```bash
+cd paper
+
+python make_figures.py        # corner_key_{A,B}, corner_noise_{A,B},
+                              # corner_fullkey_{A,B}, upsilon_xi(.png/_heatmap),
+                              # overview                            (~10 min)
+python plot_scenC.py          # corner_key_C_full_diag_td, corner_noise_C_...,
+                              # cov_colormap_C
+python plot_ABC.py            # corner_key_full_ABC
+python fig_cov_colormap.py    # cov_colormap_ABC
+```
+
+## The scaling figure
+
+Depends on `gaplike` alone — no lisabeta, no chains. It times a single
+quadratic form $\mathbf{n}_O^{T}\Sigma_{OO}^{-1}\mathbf{n}_O$ as the record
+length grows, comparing the dense route against matrix-free preconditioned
+conjugate gradients. The dense route is deliberately given nothing to exploit
+— no simultaneous diagonalization, no two-component spectrum — so that it
+stands for the general case.
+
+```bash
+python fig_cg_scaling.py      # -> results/cg_scaling.json   (~15-30 min)
+python _mkfig.py              # -> figures/cg_scaling.{png,pdf}
+```
+
+`--kmax-cg` and `--kmax-dense` shorten the sweep. `results/cg_scaling.json`
+ships with reference timings (two cores of an Intel Xeon at 2.80 GHz), so
+`_mkfig.py` works out of the box.
+
+## Regenerating the chains
+
+Needs lisabeta and hours of sampling.
+
+```bash
+python driver.py              # A/B x {full,diag,bare,psd}    (~80 min, 2 cores)
+python scenC_run.py           # C: FD full + convolved diagonal + exact TD PE
+python ensemble_noise.py      # 300-realization ensemble: pseudo-true points,
+                              # sandwich scatter
+```
+
+## The scenarios
+
+| | pattern | duty | SNR |
+|---|---|---|---|
+| **A** | two long gaps, 1 h each, 0.3 h Planck tapers | — | 585 |
+| **B** | twelve short gaps, 9 min hourly, 0.05 h tapers | — | 743 |
+| **C** | drastic comb, 150 s removed every 750 s, rectangular | 80% | 319 |
+
+The no-gap reference is SNR 902. Scenario C is where the approximation
+hierarchy breaks: the convolved diagonal stays accurate but its widths are an
+order of magnitude wider than the data allow, and one of the two exact
+treatments becomes necessary.
+
+## Notebooks
+
+Two worked examples ship in `notebooks/`.
+
+`exact_inference_demo.ipynb` runs end to end **without lisabeta**: gapped
+two-channel LISA noise plus a toy chirp, a joint four-parameter PE with both
+`TimeDomainExact` and `FullCovariance`, and a comparison corner showing the
+two posteriors on top of each other.
+
+`mbhb_gaps_demo.ipynb` injects an MBHB with parameters of your choosing,
+compares five gap configurations by duty cycle and recoverable SNR, and sets
+up a complete joint thirteen-parameter inference — likelihood, priors,
+walkers, sampler — ready but not launched.
+
+`anim_leakage.py` renders the animation used in talks: four acts taking a raw
+record through record-edge tapering, sharp-edged gaps and tapered gaps, with
+the spectral kernel, the modelled PSD and the bin-to-bin correlation matrix
+side by side.

@@ -248,8 +248,10 @@ class TimeDomainExact:
     ----------
     mask : bool or float array, length n
         Observed-sample mask (or gate; strictly-positive entries = observed).
-    components : two PSD components (callables or two-sided grids)
-    dt : sample cadence [s]
+    components : sequence of two callables or ndarrays
+        The two PSD components, as callables of ``f`` or two-sided grids.
+    dt : float
+        Sample cadence [s].
     """
 
     def __init__(self, mask, components, dt):

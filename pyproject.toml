@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "gaplike"
 version = "1.0.0"
-description = "Gapped/windowed stationary Gaussian inference: gap-pattern generation, windowed frequency-domain covariances, and exact accelerated time-domain likelihoods"
+description = "Gapped/windowed stationary Gaussian inference: gap-pattern generation, windowed frequency-domain covariances, and exact time-domain likelihoods (closed-form or matrix-free)"
 readme = "README.md"
 requires-python = ">=3.9"
 license = { text = "MIT" }
@@ -13,7 +13,10 @@ authors = [
   { name = "Federico Pozzoli" },
   { name = "Ollie Burke" },
 ]
-keywords = ["LISA", "gravitational waves", "data gaps", "window functions", "Whittle likelihood", "Toeplitz"]
+keywords = [
+  "LISA", "gravitational waves", "data gaps", "window functions",
+  "Whittle likelihood", "Toeplitz", "conjugate gradients",
+]
 classifiers = [
   "Intended Audience :: Science/Research",
   "License :: OSI Approved :: MIT License",
@@ -27,11 +30,22 @@ dependencies = [
   "scipy>=1.8",
 ]
 
+[project.urls]
+Repository = "https://github.com/FedericoPozzoli/gaplike"
+
 [project.optional-dependencies]
-# full paper pipeline: sampling + corner plots (lisabeta must be installed
-# separately, see README)
+# sampling + plotting: everything needed to reproduce the paper figures from
+# the cached chains, and to run the notebooks
 pe = ["emcee>=3", "corner", "matplotlib"]
 dev = ["pytest>=7"]
+# building the documentation (docs/) -- see .github/workflows/docs.yml
+docs = ["sphinx>=7", "furo", "myst-parser>=2", "sphinx-copybutton"]
+# MBHB waveform adapter (gaplike.waveform.lisabeta_mbhb_ae) only.  Kept out of
+# `pe` because exactly one factory needs it: every likelihood, the CG solver
+# and the paper figures from the cached chains work without it, and the import
+# happens inside that factory.  Installing from PyPI gives wheels; building the
+# GitLab sources instead needs FFTW and a CMake toolchain.
+mbhb = ["lisabeta"]
 
 [tool.setuptools.packages.find]
 where = ["src"]
