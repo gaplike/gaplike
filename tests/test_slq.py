@@ -186,3 +186,100 @@ def test_complement_diff_matches_dense():
     d_c = (slq.logdet_complement(eig2, obs)
            - slq.logdet_complement(eig1, obs))
     assert d_c == pytest.approx(t2 - t1, abs=1e-6)
+
+
+def _positive_eig(n):
+    """Eigenvalue grid with a strictly positive DC bin (precomputed two-sided
+    grids pass through as_two_sided untouched, so nothing is zeroed)."""
+    f = np.fft.fftfreq(n, DT)
+    s2 = 1e-40 * (1.0 + (np.abs(f) / 1e-3) ** 2)
+    return gcg.circulant_eigenvalues([s2], n, DT)
+
+
+def test_complement_rejects_non_dc_zero_bin():
+    """Only a zeroed DC bin has the exact rank-one downdate; any other
+    non-positive bin must raise rather than silently floor."""
+    eig = _positive_eig(256)
+    eig[5] = 0.0
+    with pytest.raises(ValueError, match="non-positive bins"):
+        slq.ComplementFactor(eig, np.arange(0, 240))
+
+
+def test_complement_gap_free_reduces_to_circulant():
+    """With no gaps the identity degenerates: log-det is the Whittle sum and
+    the quadratic form is the FFT-diagonal inverse."""
+    n = 256
+    eig = _positive_eig(n)
+    obs = np.arange(n)
+    fac = slq.ComplementFactor(eig, obs)
+    assert fac.logdet == pytest.approx(slq.circulant_logdet(eig), rel=1e-12)
+    d = np.random.default_rng(41).standard_normal(n)
+    q_direct = float(np.sum(np.abs(np.fft.fft(d)) ** 2 / eig) / n)
+    assert fac.quad_form(d) == pytest.approx(q_direct, rel=1e-10)
+
+
+def test_complement_quad_form_multichannel():
+    """(nch, m) input must sum the per-channel forms."""
+    _, eig, obs = _setup(n=512)
+    d = np.random.default_rng(43).standard_normal((2, obs.size))
+    fac = slq.ComplementFactor(eig, obs)
+    assert fac.quad_form(d) == pytest.approx(
+        fac.quad_form(d[0]) + fac.quad_form(d[1]), rel=1e-12)
+
+
+def test_spline_knots_layout():
+    """Clamped knot vector: n_coeff + degree + 1 knots, endpoints repeated
+    degree + 1 times, spanning [log10 f_lo, log10 f_hi]."""
+    knots = slq.spline_knots(1e-4, 1e-2, 12, degree=3)
+    assert knots.size == 12 + 3 + 1
+    assert np.all(np.diff(knots) >= 0)
+    assert np.all(knots[:4] == pytest.approx(-4.0))
+    assert np.all(knots[-4:] == pytest.approx(-2.0))
+
+
+def test_circulant_logdet_skip_nonpositive():
+    """Callable-built grids have the DC bin zeroed by convention, so the raw
+    Whittle sum is -inf by design; skip_nonpositive sums the in-band bins."""
+    comps = list(psd.lisa_tdi2_ae().values())
+    eig = gcg.circulant_eigenvalues(comps, 128, DT)
+    assert eig[0] == 0.0
+    with np.errstate(divide="ignore"):
+        assert slq.circulant_logdet(eig) == -np.inf
+    got = slq.circulant_logdet(eig, skip_nonpositive=True)
+    assert got == pytest.approx(float(np.sum(np.log(eig[eig > 0]))))
+
+
+def test_rademacher_deterministic_pm1():
+    z = slq.rademacher(64, 5, np.random.default_rng(3))
+    assert z.shape == (5, 64)
+    assert np.all(np.isin(z, (-1.0, 1.0)))
+    assert np.array_equal(z, slq.rademacher(64, 5, np.random.default_rng(3)))
+
+
+def test_lanczos_breakdown_truncates():
+    """Starting from an exact eigenvector, Lanczos breaks down after one step
+    and must return the truncated factorisation; the quadrature on it is then
+    exact."""
+    A = np.diag([1.0, 2.0, 3.0, 4.0])
+    v0 = np.array([0.0, 1.0, 0.0, 0.0])
+    alpha, beta, V = slq.lanczos_tridiag(lambda v: A @ v, v0, k=4)
+    assert alpha.shape == (1,) and beta.shape == (0,) and V.shape == (1, 4)
+    assert alpha[0] == pytest.approx(2.0)
+    est, clipped = slq.quad_log(lambda v: A @ v, v0, k=4)
+    assert clipped == 0
+    assert est == pytest.approx(np.log(2.0))
+
+
+def test_quad_log_reports_clipping():
+    """Ritz values at or below eig_floor are clipped and counted --- the
+    monitoring hook for near-singular operators."""
+    rng = np.random.default_rng(5)
+    m = 12
+    Q, _ = np.linalg.qr(rng.standard_normal((m, m)))
+    w = np.geomspace(1e-12, 1.0, m)
+    A = (Q * w) @ Q.T
+    z = rng.standard_normal(m)
+    # k = m: the Ritz values are the eigenvalues, several sit below the floor
+    est, clipped = slq.quad_log(lambda v: A @ v, z, k=m, eig_floor=1e-6)
+    assert clipped >= 1
+    assert np.isfinite(est)

@@ -8,15 +8,18 @@ the other half of the exact time-domain likelihood, and the half with no
 closed form once the noise model is richer than two components.
 
 Per record length N = 2^k:
-  dense : build Sigma_OO, Cholesky, read the determinant off the factor
-          (the general-case reference route, exactly as in fig_cg_scaling)
-  SLQ   : matrix-free Hutchinson + Lanczos quadrature at each (n_probes,
-          k_lanczos) setting of a small grid; reported are the estimate,
-          its per-probe scatter, wall time (min over repeats) and, where
-          dense truth exists, the absolute error.
+  dense      : build Sigma_OO, Cholesky, read the determinant off the factor
+               (the general-case reference route, exactly as in fig_cg_scaling)
+  complement : the Schur-complement identity log|Sigma_OO| = log|Sigma| +
+               log|(Sigma^-1)_GG| --- EXACT, one g x g Cholesky on the GAP
+               samples (g = N/5 on this comb, so 125x fewer flops than dense)
+  SLQ        : matrix-free Hutchinson + Lanczos quadrature at each (n_probes,
+               k_lanczos) setting of a small grid; reported are the estimate,
+               its per-probe scatter, wall time (min over repeats) and, where
+               dense truth exists, the absolute error.
 
     python fig_det_scaling.py                          # default quick pass
-    python fig_det_scaling.py --kmax-slq 14 --kmax-dense 14 --reps 3
+    python fig_det_scaling.py --kmax-slq 14 --kmax-dense 14 --kmax-comp 15
 """
 import argparse
 import json
@@ -36,6 +39,9 @@ p.add_argument("--kmin", type=int, default=9)
 p.add_argument("--kmax-slq", type=int, default=13)
 p.add_argument("--kmax-dense", type=int, default=13,
                help="largest dense point; 2^14 needs ~1.4 GB, 2^15 ~5.5 GB")
+p.add_argument("--kmax-comp", type=int, default=14,
+               help="largest complement-identity point; the cost is one "
+                    "g x g Cholesky on the gap samples, cheap to ~2^15-2^16")
 p.add_argument("--probes", type=int, nargs="+", default=[8, 32])
 p.add_argument("--lanczos", type=int, nargs="+", default=[50, 100])
 p.add_argument("--reps", type=int, default=3)
@@ -47,7 +53,8 @@ comps = psd.lisa_tdi2_ae()
 COMPONENTS = [comps["tm"], comps["oms"]]
 
 out = []
-for k in range(args.kmin, args.kmax_slq + 1):
+for k in range(args.kmin, max(args.kmax_slq, args.kmax_dense,
+                              args.kmax_comp) + 1):
     n = 2 ** k
     obs = np.flatnonzero(np.asarray(gaps.periodic_mask(n, N_GAP, PERIOD)) > 0)
     m = obs.size
@@ -63,8 +70,19 @@ for k in range(args.kmin, args.kmax_slq + 1):
             t_d = min(t_d, time.perf_counter() - t0)
         row.update(t_dense=t_d, logdet_dense=ld_d)
 
+    # ---- complement identity: exact, one g x g Cholesky on the gaps -------
+    if k <= args.kmax_comp:
+        t_c, ld_c = np.inf, None
+        for _ in range(args.reps):
+            t0 = time.perf_counter()
+            ld_c = slq.logdet_complement(eig, obs)
+            t_c = min(t_c, time.perf_counter() - t0)
+        row.update(t_comp=t_c, logdet_comp=ld_c)
+        if "logdet_dense" in row:
+            row["abs_err_comp"] = abs(ld_c - row["logdet_dense"])
+
     # ---- SLQ grid ---------------------------------------------------------
-    for M in args.probes:
+    for M in (args.probes if k <= args.kmax_slq else []):
         for kl in args.lanczos:
             t_s, res = np.inf, None
             for r in range(args.reps):
@@ -86,6 +104,12 @@ for k in range(args.kmin, args.kmax_slq + 1):
     if "t_dense" in row:
         msg += f"  dense {row['t_dense']:8.2f} s  logdet {row['logdet_dense']:.6e}"
     print(msg, flush=True)
+    if "t_comp" in row:
+        line = (f"    complement (exact)  {row['t_comp']:11.3f} s  "
+                f"logdet {row['logdet_comp']:.6e}")
+        if "abs_err_comp" in row:
+            line += f"  abs.err {row['abs_err_comp']:.3e}"
+        print(line, flush=True)
     for e in row.get("slq", []):
         line = (f"    SLQ M={e['probes']:3d} k={e['lanczos']:3d}  "
                 f"{e['t']:7.2f} s  est {e['est']:.6e}  se {e['stderr']:.2e}")

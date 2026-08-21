@@ -6,7 +6,7 @@
 | {class}`~gaplike.FullCovariance` | dense windowed frequency-domain covariance, band-restricted | O(r) after one O(N_b³) setup | exact within the band-restricted, circularly-symmetric reduction |
 | {meth}`~gaplike.DiagonalLikelihood.convolved` | exact diagonal of the windowed covariance | O(N_b) | unbiased widths *per bin*; ignores bin-to-bin correlations |
 | {meth}`~gaplike.DiagonalLikelihood.whittle` | raw PSD, optionally scaled by the window power | O(N_b) | the Whittle / "normalizing constant" approximation |
-| {class}`~gaplike.RestrictedCG` | same model as `TimeDomainExact`, matrix-free | 4 FFTs × a few hundred iterations, **no setup, no storage** | exact quadratic forms to a chosen tolerance; any number of components; no determinant |
+| {class}`~gaplike.RestrictedCG` | same model as `TimeDomainExact`, matrix-free | 4 FFTs × a few hundred iterations, **no setup, no storage** | exact quadratic forms to a chosen tolerance; any number of components; determinant from {mod}`gaplike.slq` |
 
 ## Conventions
 
@@ -103,7 +103,11 @@ $N^{0.96}$ at the smallest sizes to $N^{0.11}$ over the last octave, as one
 would expect if the conditioning is set by the geometry of the gaps rather
 than by the length of the record.
 
-The determinant is deliberately not provided by `gaplike.cg`. Pair the
-quadratic form with the closed-form determinant of `TimeDomainExact` when
-there are exactly two components, or with stochastic Lanczos quadrature in
-general.
+The determinant is deliberately not provided by `gaplike.cg` itself. With
+exactly two components the closed form of `TimeDomainExact` already supplies
+it; in general {mod}`gaplike.slq` provides the two matrix-free companions —
+the exact Schur-complement identity (one Cholesky on the *gap* samples per
+noise state, which also yields exact quadratic forms), and stochastic Lanczos
+quadrature with shared-probe differences for the accept ratios an MCMC
+actually needs. [Determinants](determinants.md) lays out when each one is the
+right choice.

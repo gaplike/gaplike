@@ -18,7 +18,7 @@ paper configuration and drive the runs.
 ```bash
 uv pip install -e "..[pe]"   # gaplike + emcee + corner + matplotlib
 # plus lisabeta (waveform): https://gitlab.in2p3.fr/marsat/lisabeta
-# (lisabeta is NOT needed for the CG scaling benchmark, step 4)
+# (lisabeta is NOT needed for the scaling benchmarks, steps 3-4)
 ```
 
 ## Reproduce
@@ -40,6 +40,13 @@ python ensemble_noise.py           # 300-realization ensemble verification
 #    preconditioned conjugate gradients, no structure granted to either
 python fig_cg_scaling.py           # ~15-30 min -> results/cg_scaling.json
 python _mkfig.py                   # -> figures/cg_scaling.{png,pdf}
+
+# 4. the determinant benchmark (beyond the paper): dense Cholesky vs the
+#    exact complement identity vs matrix-free SLQ, plus the shared-probe
+#    difference experiments -- gaplike only, no lisabeta, no chains
+python fig_det_scaling.py --kmax-slq 14 --kmax-dense 14 --kmax-comp 15
+python fig_det_flexible.py         # -> results/det_flexible*.json
+python mkfig_det.py                # -> figures/det_scaling.{png,pdf}
 ```
 
 The regression suite that used to live here (`verify_pipeline.py`) moved into
@@ -63,4 +70,5 @@ identical; re-run step 3 for full-resolution chains).
 | `make_figures.py` | one entry point: regenerates the chain-based figures from `results/` |
 | `diagnostics.py` | analytic machinery on top of gaplike: Fisher under the true covariance, ApproxModel (biases, scatter, Υ/Ξ), KL pseudo-true, Godambe/White sandwich |
 | `fig_cg_scaling.py`, `_mkfig.py` | CG-vs-dense scaling benchmark and its figure (depends on `gaplike` only) |
+| `fig_det_scaling.py`, `fig_det_flexible.py`, `mkfig_det.py` | log-determinant benchmark, beyond the paper: dense vs the exact complement identity vs SLQ, shared-probe determinant differences, and their figure (`gaplike.slq` only) |
 | `results/`, `figures/` | cached PE chains + `cg_scaling.json` (reference timings: 2 cores, Intel Xeon 2.80 GHz); regenerated figures |

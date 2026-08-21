@@ -37,6 +37,20 @@ python _mkfig.py              # -> figures/cg_scaling.{png,pdf}
 ships with reference timings (two cores of an Intel Xeon at 2.80 GHz), so
 `_mkfig.py` works out of the box.
 
+## The determinant benchmark
+
+Beyond the paper: the same comparison for the likelihood's other half,
+$\log\lvert\Sigma_{OO}\rvert$ — dense Cholesky against the exact complement
+identity and matrix-free SLQ ([Determinants](determinants.md)), plus the
+shared-probe difference experiments under ratio-spline perturbations. Also
+`gaplike`-only.
+
+```bash
+python fig_det_scaling.py --kmax-slq 14 --kmax-dense 14 --kmax-comp 15
+python fig_det_flexible.py    # -> results/det_flexible*.json
+python mkfig_det.py           # -> figures/det_scaling.{png,pdf}
+```
+
 ## Regenerating the chains
 
 Needs lisabeta and hours of sampling.

@@ -20,6 +20,14 @@
    :member-order: bysource
 ```
 
+## Log-determinants
+
+```{eval-rst}
+.. automodule:: gaplike.slq
+   :members:
+   :member-order: bysource
+```
+
 ## Gap patterns, gates and windows
 
 ```{eval-rst}

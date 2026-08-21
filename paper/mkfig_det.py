@@ -3,9 +3,11 @@ results/det_flexible_k*.json (produced by fig_det_scaling.py and
 fig_det_flexible.py).
 
 Left  : wall time of one log-determinant vs record length --- dense
-        build+Cholesky against matrix-free SLQ, measured power laws,
-        dense extrapolated beyond the largest affordable point (the
-        companion of the quadratic-form panel in fig `cg_scaling`).
+        build+Cholesky against the EXACT complement identity (one g x g
+        Cholesky on the gap samples) and matrix-free SLQ; measured power
+        laws, dense and complement extrapolated beyond their largest
+        affordable points (the companion of the quadratic-form panel in
+        fig `cg_scaling`).
 Right : what the accept ratio actually feels --- ABSOLUTE error in
         log-likelihood units.  Absolute SLQ estimates sit at 10^1-10^2
         regardless of budget (they are relative-accuracy estimators of a
@@ -37,15 +39,20 @@ def slq_entry(row, sel):
     return None
 
 
-kk = np.array([r["k"] for r in scal])
-t_slq = np.array([slq_entry(r, BEST)["t"] for r in scal])
+kk = np.array([r["k"] for r in scal if slq_entry(r, BEST)])
+t_slq = np.array([slq_entry(r, BEST)["t"] for r in scal if slq_entry(r, BEST)])
 kd = np.array([r["k"] for r in scal if "t_dense" in r])
 td = np.array([r["t_dense"] for r in scal if "t_dense" in r])
+kc = np.array([r["k"] for r in scal if "t_comp" in r])
+tc = np.array([r["t_comp"] for r in scal if "t_comp" in r])
 
 # measured power laws  t ~ N^p  (fit the last few points)
 pd_ = np.polyfit(kd[-4:] * np.log(2), np.log(td[-4:]), 1)[0]
 ps_ = np.polyfit(kk[-4:] * np.log(2), np.log(t_slq[-4:]), 1)[0]
-print(f"measured exponents: dense N^{pd_:.2f}   SLQ N^{ps_:.2f}")
+pc_ = (np.polyfit(kc[-4:] * np.log(2), np.log(tc[-4:]), 1)[0]
+       if kc.size >= 4 else np.nan)
+print(f"measured exponents: dense N^{pd_:.2f}   SLQ N^{ps_:.2f}"
+      + (f"   complement N^{pc_:.2f}" if np.isfinite(pc_) else ""))
 
 rc = {"font.family": "serif", "mathtext.fontset": "cm", "font.size": 14,
       "axes.labelsize": 17, "axes.titlesize": 16, "xtick.labelsize": 13,
@@ -65,6 +72,16 @@ with plt.rc_context(rc):
             f"{y/60:.0f} min" if y > 60 else f"{y:.0f} s")
         axL.annotate(lab, (x, y), textcoords="offset points", xytext=(7, -12),
                      fontsize=10, color="tab:red", ha="left", va="top")
+    if kc.size:
+        if np.isfinite(pc_):
+            kce = np.arange(kc[-1], 19)
+            tce = tc[-1] * 2.0 ** (pc_ * (kce - kc[-1]))
+            axL.plot(kce, tce, "D--", color="tab:green", ms=6.5, lw=1.4,
+                     mfc="white")
+        lab = r"complement identity (exact)"
+        if np.isfinite(pc_):
+            lab += rf"  $\propto N^{{{pc_:.1f}}}$"
+        axL.plot(kc, tc, "D-", color="tab:green", ms=7, lw=2, label=lab)
     ks = np.arange(kk[-1], 19)
     ts = t_slq[-1] * 2.0 ** (ps_ * (ks - kk[-1]))
     axL.plot(ks, ts, "s--", color="tab:blue", ms=7, lw=1.4, mfc="white")
@@ -74,7 +91,7 @@ with plt.rc_context(rc):
     axL.set_yscale("log")
     axL.set_xlabel(r"record length  $\log_2 N$")
     axL.set_ylabel("wall time of one log-determinant [s]")
-    axL.legend(loc="upper left", framealpha=0.95)
+    axL.legend(loc="upper left", framealpha=0.95, fontsize=11)
     axL.grid(alpha=0.25)
 
     # ---- right: accuracy in log-likelihood units ---------------------------
@@ -104,6 +121,14 @@ with plt.rc_context(rc):
                                     + rf"{sig}$)")
         axR.plot([], [], "s", color="0.75", mec="0.4",
                  label="same, independent probes")
+
+    # the complement identity is exact --- its error (~1e-9 vs dense truth)
+    # sits ten decades below the axis, so it enters as a legend line only
+    err_c = [r["abs_err_comp"] for r in scal if "abs_err_comp" in r]
+    if err_c:
+        axR.plot([], [], "D", color="tab:green",
+                 label=rf"complement identity: exact "
+                       rf"($|$err$|<10^{{{int(np.ceil(np.log10(max(err_c))))}}}$, off scale)")
 
     axR.axhline(0.1, color="k", ls="--", lw=1.2)
     axR.annotate("0.1 log-likelihood units", (kk.min() + 0.1, 0.1),

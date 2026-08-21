@@ -68,6 +68,7 @@ the right choice.
 installation
 quickstart
 likelihoods
+determinants
 reproducing
 ```
 

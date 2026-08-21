@@ -103,5 +103,7 @@ quad, iters = rcg.quad_form((0.0, 0.0), L_td.transform(x))
 ```
 
 Pair it with a determinant: closed-form from `TimeDomainExact` when there are
-exactly two components, or stochastic Lanczos quadrature in general. See
+exactly two components; otherwise {mod}`gaplike.slq` supplies the exact
+complement identity ({class}`~gaplike.ComplementFactor`) and stochastic
+Lanczos quadrature at any scale — see [Determinants](determinants.md). See
 [the likelihood hierarchy](likelihoods.md) for when this is the right choice.
