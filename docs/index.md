@@ -69,6 +69,7 @@ installation
 quickstart
 likelihoods
 determinants
+upsilon_xi
 reproducing
 ```
 

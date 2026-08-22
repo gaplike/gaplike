@@ -60,7 +60,9 @@ drastic-comb scenario the convolved diagonal remains calibrated — its
 scatter-to-width ratios sit at 0.85–0.95 in the signal sector — while its
 quoted widths are 8.6 to 10.2 times wider than the data allow. It does not
 give you a confidently wrong answer; it gives you a correct answer with error
-bars an order of magnitude too loose.
+bars an order of magnitude too loose. (Those two numbers are the $\Upsilon$
+and $\Xi$ diagnostics; [their own page](upsilon_xi.md) defines them and shows
+why a PP plot cannot separate them.)
 
 Because both the curvature and the score variance are quadratic in
 $\partial h / \partial\theta$, that ratio is independent of SNR at leading
