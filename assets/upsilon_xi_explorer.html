@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upsilon–Xi Explorer</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+:root{
+  --bg:#fbfaf6; --card:#ffffff; --ink:#1c1c22; --muted:#6c6b72;
+  --rule:#e0ded6; --band:#eceade; --accent:#c9690a; --forbid:#b9b7ae;
+  --c-exact:#4a4a52; --c-blue:#1f77b4; --c-red:#d62728; --c-purple:#9467bd;
+  --shadow:0 1px 3px rgba(28,28,34,.07),0 4px 14px rgba(28,28,34,.05);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15151a; --card:#1d1d24; --ink:#e9e8e2; --muted:#9a99a2;
+    --rule:#33333c; --band:#2b2b33; --accent:#f0983c; --forbid:#55545e;
+    --c-exact:#b8b8c0; --c-blue:#5aa2d8; --c-red:#e46a6a; --c-purple:#ab8dd8;
+    --shadow:0 1px 3px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15151a; --card:#1d1d24; --ink:#e9e8e2; --muted:#9a99a2;
+  --rule:#33333c; --band:#2b2b33; --accent:#f0983c; --forbid:#55545e;
+  --c-exact:#b8b8c0; --c-blue:#5aa2d8; --c-red:#e46a6a; --c-purple:#ab8dd8;
+  --shadow:0 1px 3px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3);
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--ink);
+  font-family:"Source Sans 3",system-ui,sans-serif; font-size:15px; line-height:1.45;
+}
+.m, h1, .bignum{font-family:"STIX Two Text","Times New Roman",serif}
+.m{font-style:italic}
+.wrap{max-width:1080px; margin:0 auto; padding:26px 20px 40px}
+header h1{font-size:32px; font-weight:600; margin:0 0 4px; text-wrap:balance}
+header .defs{color:var(--muted); margin:0 0 4px; max-width:72ch}
+header .defs b{color:var(--ink); font-weight:600}
+.grid-top{display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:16px; margin-top:18px}
+.grid-bot{display:grid; grid-template-columns:minmax(0,1.35fr) minmax(0,1fr); gap:16px; margin-top:16px}
+@media (max-width:860px){ .grid-top,.grid-bot{grid-template-columns:1fr} }
+.card{background:var(--card); border:1px solid var(--rule); border-radius:8px;
+      box-shadow:var(--shadow); padding:14px 16px}
+.card h2{font-size:12.5px; font-weight:700; letter-spacing:.08em; text-transform:uppercase;
+         color:var(--muted); margin:0 0 8px}
+.side{display:flex; flex-direction:column; gap:16px}
+svg{display:block; width:100%; height:auto}
+svg text{font-family:"Source Sans 3",system-ui,sans-serif; fill:var(--ink)}
+svg .mtx{font-family:"STIX Two Text",serif; font-style:italic}
+svg .mut{fill:var(--muted)}
+.slider-row{display:grid; grid-template-columns:118px 1fr 74px; gap:10px; align-items:center; margin:9px 0}
+.slider-row label{font-weight:600}
+.slider-row output{font-variant-numeric:tabular-nums; text-align:right; font-weight:600}
+input[type=range]{width:100%; accent-color:var(--accent); height:22px}
+input[type=range]:focus-visible{outline:2px solid var(--accent); outline-offset:3px; border-radius:4px}
+.bound-note{color:var(--muted); font-size:13px; margin:2px 0 10px}
+.bound-note .m{color:var(--ink)}
+.chips{display:flex; flex-wrap:wrap; gap:7px; margin-top:8px}
+.chip{display:inline-flex; align-items:center; gap:7px; padding:5px 11px; border-radius:999px;
+      border:1px solid var(--rule); background:transparent; color:var(--ink);
+      font:inherit; font-size:13px; cursor:pointer}
+.chip:hover{border-color:var(--muted)}
+.chip:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.chip .dot{width:10px; height:10px; border-radius:50%; flex:none}
+.verdict .bignum{font-size:25px; font-weight:600; margin:2px 0 6px}
+.verdict .bignum small{font-size:15px; color:var(--muted); font-family:"Source Sans 3",sans-serif; font-style:normal}
+.verdict p{margin:6px 0}
+.verdict .read{color:var(--muted)}
+.verdict .read b{color:var(--ink); font-variant-numeric:tabular-nums}
+footer{margin-top:22px; color:var(--muted); font-size:13px; max-width:80ch}
+@media (prefers-reduced-motion:no-preference){
+  .chip{transition:border-color .15s}
+  #cur-group{transition:opacity .15s}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>The <span class="m">&#978;</span>&thinsp;&ndash;&thinsp;<span class="m">&Xi;</span> plane</h1>
+  <p class="defs"><b><span class="m">&#978;</span> = true scatter / quoted width</b> — is the error bar honest?&ensp;&middot;&ensp;
+     <b><span class="m">&Xi;</span> = quoted width / exact-analysis width</b> — was all the information used?
+     Honest data cannot beat the exact analysis: <b><span class="m">&#978;&middot;&Xi;</span> &ge; 1</b>.</p>
+</header>
+
+<div class="grid-top">
+  <div class="card">
+    <h2>Drag the point — or a slider</h2>
+    <svg id="plane" viewBox="0 0 470 470" role="img" aria-label="log-log plane of Upsilon against Xi"></svg>
+  </div>
+  <div class="side">
+    <div class="card">
+      <h2>Analysis dials</h2>
+      <div class="slider-row">
+        <label for="s-ups"><span class="m">&#978;</span> calibration</label>
+        <input id="s-ups" type="range" min="0" max="1000" step="1">
+        <output id="o-ups"></output>
+      </div>
+      <div class="slider-row">
+        <label for="s-xi"><span class="m">&Xi;</span> efficiency</label>
+        <input id="s-xi" type="range" min="0" max="1000" step="1">
+        <output id="o-xi"></output>
+      </div>
+      <div class="slider-row">
+        <label for="s-bias">systematic part</label>
+        <input id="s-bias" type="range" min="0" max="95" step="1">
+        <output id="o-bias"></output>
+      </div>
+      <p class="bound-note">Sliders stop at the information bound <span class="m">&#978;&middot;&Xi;</span> = 1.
+         &ldquo;Systematic part&rdquo; turns scatter into a fixed offset of every estimate.</p>
+      <h2>Paper anchors — click to load</h2>
+      <div class="chips" id="chips"></div>
+    </div>
+    <div class="card verdict" id="verdict"></div>
+  </div>
+</div>
+
+<div class="grid-bot">
+  <div class="card">
+    <h2>Repeated experiments — quoted 68% bars vs the truth</h2>
+    <svg id="forest" viewBox="0 0 560 330" role="img" aria-label="interval plot of repeated experiments"></svg>
+  </div>
+  <div class="card">
+    <h2>What a PP plot would show</h2>
+    <svg id="pp" viewBox="0 0 330 330" role="img" aria-label="probability-probability plot"></svg>
+  </div>
+</div>
+
+<footer>
+  <span class="m">&#978;</span> and <span class="m">&Xi;</span> as defined in Burke &amp; Pozzoli (2026),
+  <i>Zur&uuml;ckbleiben bitte: the impact of window functions on noise and signal parameter inference</i>.
+  Anchors are the paper&rsquo;s measured leading-order values (Table III; signal-sector
+  entries are the 11-parameter averages). Everything is drawn in units of the
+  exact-analysis width. Same noise draws for every setting, so only the analysis changes.
+</footer>
+</div>
+
+<script>
+"use strict";
+/* ---------------------------------------------------------------- helpers */
+const $ = id => document.getElementById(id);
+const NS = "http://www.w3.org/2000/svg";
+function el(tag, attrs, parent){
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function erf(x){
+  const s = x < 0 ? -1 : 1; x = Math.abs(x);
+  const t = 1/(1 + .3275911*x);
+  const y = 1 - (((((1.061405429*t - 1.453152027)*t) + 1.421413741)*t
+              - .284496736)*t + .254829592)*t*Math.exp(-x*x);
+  return s*y;
+}
+const Phi = x => .5*(1 + erf(x/Math.SQRT2));
+function probit(p){                       /* Acklam's rational approximation */
+  if (p <= 0) return -Infinity; if (p >= 1) return Infinity;
+  const a=[-39.6968302866538,220.946098424521,-275.928510446969,138.357751867269,-30.6647980661472,2.50662827745924],
+        b=[-54.4760987982241,161.585836858041,-155.698979859887,66.8013118877197,-13.2806815528857],
+        c=[-.00778489400243029,-.322396458041136,-2.40075827716184,-2.54973253934373,4.37466414146497,2.93816398269878],
+        d=[.00778469570904146,.32246712907004,2.445134137143,3.75440866190742];
+  const lo=.02425, hi=1-lo; let q,r;
+  if (p < lo){ q = Math.sqrt(-2*Math.log(p));
+    return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  if (p > hi){ q = Math.sqrt(-2*Math.log(1-p));
+    return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5])/((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1); }
+  q = p-.5; r = q*q;
+  return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q/(((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1);
+}
+const fmt = v => v >= 9.95 ? v.toFixed(0) : v.toFixed(2);
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+/* ------------------------------------------------------------------ state */
+const LO = -0.55, HI = 1.55;              /* log10 range of both axes        */
+const S = { ups: 1.0, xi: 1.0, biasFrac: 0.0 };
+/* the paper's measured anchors, quoted from Table III of the manuscript:
+   signal-sector entries are the 11-parameter averages (Ῡ_s, Ξ̄_s)          */
+const ANCHORS = [
+  {ups:1.00, xi:1.00,  cvar:"--c-exact",  name:"exact time domain",
+   note:"scenario C — 1 by construction"},
+  {ups:0.92, xi:9.30,  cvar:"--c-blue",   name:"convolved diagonal, signal",
+   note:"scenario C, signal average"},
+  {ups:1.47, xi:0.82,  cvar:"--c-red",    name:"Wc-scaled Whittle, signal",
+   note:"scenario B, signal average"},
+  {ups:1.23, xi:13.73, cvar:"--c-purple", name:"convolved diagonal, noise",
+   note:"scenario C, λₜₘ"},
+];
+/* fixed standard-normal draws (numpy default_rng(7) — same as the gifs)    */
+const U = [0.0012,0.2987,-0.2741,-0.8906,-0.4547,-0.9916,0.0601,1.3402,
+           -0.4922,-0.6205,0.4898,0.3569,0.1054,-0.9305,-0.0293,0.6953,
+           -1.3442,-0.4576,-1.9012,-1.2895,-1.8417,-0.2351,-1.2674,0.2713];
+
+function params(){
+  const sq = S.xi, stot = S.ups*S.xi, b = S.biasFrac*stot;
+  const ss = Math.sqrt(Math.max(stot*stot - b*b, 1e-12));
+  return {sq, stot, b, ss};
+}
+function coverage(p){
+  const {sq, b, ss} = params();
+  const z = probit(.5*(1+p));
+  return Phi((z*sq - b)/ss) - Phi((-z*sq - b)/ss);
+}
+function coverageOf(ups, xi, p){
+  const sq = xi, ss = ups*xi, z = probit(.5*(1+p));
+  return Phi(z*sq/ss) - Phi(-z*sq/ss);
+}
+
+/* ------------------------------------------------------------- the plane */
+const P = {m:{l:52, r:14, t:14, b:44}, w:470, h:470};
+const px = lx => P.m.l + (lx-LO)/(HI-LO)*(P.w-P.m.l-P.m.r);
+const py = ly => P.h-P.m.b - (ly-LO)/(HI-LO)*(P.h-P.m.t-P.m.b);
+let cur = {}, boundLine;
+
+function buildPlane(){
+  const svg = $("plane");
+  const iw = P.w-P.m.l-P.m.r, ih = P.h-P.m.t-P.m.b;
+  const defs = el("defs", {}, svg);
+  const pat = el("pattern", {id:"hatch", width:"7", height:"7",
+                             patternUnits:"userSpaceOnUse",
+                             patternTransform:"rotate(45)"}, defs);
+  el("rect", {width:"7", height:"7", fill:"none"}, pat);
+  el("line", {x1:0, y1:0, x2:0, y2:7, stroke:"var(--forbid)",
+              "stroke-width":1.1, opacity:.55}, pat);
+
+  el("rect", {x:P.m.l, y:P.m.t, width:iw, height:ih, fill:"none",
+              stroke:"var(--rule)"}, svg);
+  /* grid + ticks at 0.5, 1, 3, 10, 30 */
+  const ticks = [[Math.log10(.5),"0.5"],[0,"1"],[Math.log10(3),"3"],[1,"10"],[Math.log10(30),"30"]];
+  for (const [lv, lab] of ticks){
+    el("line", {x1:px(lv), y1:py(LO), x2:px(lv), y2:py(HI),
+                stroke:"var(--rule)", "stroke-width":lv===0?1.4:.7}, svg);
+    el("line", {x1:px(LO), y1:py(lv), x2:px(HI), y2:py(lv),
+                stroke:"var(--rule)", "stroke-width":lv===0?1.4:.7}, svg);
+    const tx = el("text", {x:px(lv), y:P.h-P.m.b+16, "text-anchor":"middle",
+                           "font-size":11, class:"mut"}, svg);
+    tx.textContent = lab;
+    const ty = el("text", {x:P.m.l-8, y:py(lv)+4, "text-anchor":"end",
+                           "font-size":11, class:"mut"}, svg);
+    ty.textContent = lab;
+  }
+  /* forbidden region: ups*xi < 1  ->  ly < -lx (below the anti-diagonal) */
+  const poly = [[px(LO),py(-LO)]];
+  poly.push([px(-LO), py(LO)]);                        /* line hits bottom edge  */
+  poly.push([px(LO), py(LO)]);
+  el("polygon", {points:poly.map(p=>p.join(",")).join(" "),
+                 fill:"url(#hatch)"}, svg);
+  boundLine = el("line", {x1:px(LO), y1:py(-LO), x2:px(-LO), y2:py(LO),
+                          stroke:"var(--forbid)", "stroke-width":1.6}, svg);
+  const bl = el("text", {x:px(0.14), y:py(0.03), "font-size":11.5, class:"mut",
+                         "text-anchor":"middle",
+                         transform:`rotate(-45 ${px(0.14)} ${py(0.03)})`}, svg);
+  bl.textContent = "ϒ·Ξ = 1 — the information bound";
+  const fl = el("text", {x:px(-0.13), y:py(-0.35), "font-size":10.5, class:"mut",
+                         "text-anchor":"middle",
+                         transform:`rotate(-45 ${px(-0.13)} ${py(-0.35)})`}, svg);
+  fl.textContent = "forbidden: beats the exact analysis";
+
+  /* quadrant captions */
+  const q = (x, y, lines, anchor) => {
+    const t = el("text", {x, y, "font-size":10.5, class:"mut",
+                          "text-anchor":anchor||"start"}, svg);
+    lines.forEach((s,i)=>{ const ts=el("tspan",{x,dy:i?12:0},t); ts.textContent=s; });
+  };
+  q(px(1.5), py(1.42), ["overconfident","and inflated"], "end");
+  q(px(-.5)+6, py(1.42), ["overconfident,","too narrow"]);
+  q(px(1.5), py(-.28), ["conservative,","inflated"], "end");
+
+  /* axis titles */
+  const xt = el("text", {x:(px(LO)+px(HI))/2, y:P.h-8, "text-anchor":"middle",
+                         "font-size":14}, svg);
+  xt.innerHTML = '<tspan class="mtx">Ξ</tspan>  (quoted / exact width)';
+  const yt = el("text", {x:14, y:(py(LO)+py(HI))/2, "font-size":14,
+                         "text-anchor":"middle",
+                         transform:`rotate(-90 14 ${(py(LO)+py(HI))/2})`}, svg);
+  yt.innerHTML = '<tspan class="mtx">ϒ</tspan>  (scatter / quoted width)';
+
+  /* anchors */
+  for (const a of ANCHORS){
+    const g = el("g", {cursor:"pointer", tabindex:0, role:"button"}, svg);
+    g.setAttribute("aria-label", `load anchor ${a.name}`);
+    el("circle", {cx:px(Math.log10(a.xi)), cy:py(Math.log10(a.ups)), r:6,
+                  fill:`var(${a.cvar})`, stroke:"var(--card)", "stroke-width":1.5}, g);
+    const lbl = el("text", {x:px(Math.log10(a.xi))+9, y:py(Math.log10(a.ups))+4,
+                            "font-size":11}, g);
+    lbl.textContent = a.name;
+    /* labels on the right half (and the red anchor) flip to the left side */
+    if (a.cvar === "--c-red" || Math.log10(a.xi) > 0.55){
+      lbl.setAttribute("text-anchor","end");
+      lbl.setAttribute("x", px(Math.log10(a.xi))-10);
+    }
+    const load = () => { setState(a.ups, a.xi, 0); };
+    g.addEventListener("click", load);
+    g.addEventListener("keydown", e => { if (e.key==="Enter"||e.key===" ") { e.preventDefault(); load(); } });
+  }
+
+  /* current point + crosshair */
+  const g = el("g", {id:"cur-group"}, svg);
+  cur.hx = el("line", {stroke:"var(--accent)", "stroke-dasharray":"3 4",
+                       "stroke-width":1}, g);
+  cur.hy = el("line", {stroke:"var(--accent)", "stroke-dasharray":"3 4",
+                       "stroke-width":1}, g);
+  cur.halo = el("circle", {r:12, fill:"var(--accent)", opacity:.18}, g);
+  cur.dot = el("circle", {r:6.5, fill:"var(--accent)", stroke:"var(--card)",
+                          "stroke-width":1.8}, g);
+  cur.lab = el("text", {"font-size":11.5, "font-weight":600}, g);
+
+  /* dragging */
+  let drag = false;
+  const toState = evt => {
+    const r = svg.getBoundingClientRect();
+    const sx = (evt.clientX-r.left)*P.w/r.width, sy = (evt.clientY-r.top)*P.h/r.height;
+    let lx = LO + (sx-P.m.l)/(P.w-P.m.l-P.m.r)*(HI-LO);
+    let ly = LO + (P.h-P.m.b-sy)/(P.h-P.m.t-P.m.b)*(HI-LO);
+    lx = Math.min(Math.max(lx, LO), HI); ly = Math.min(Math.max(ly, LO), HI);
+    if (lx + ly < 0){ const d = -(lx+ly)/2; lx += d; ly += d; }   /* snap to bound */
+    setState(Math.pow(10,ly), Math.pow(10,lx), S.biasFrac);
+  };
+  svg.addEventListener("pointerdown", e => { drag = true; svg.setPointerCapture(e.pointerId); toState(e); });
+  svg.addEventListener("pointermove", e => { if (drag) toState(e); });
+  svg.addEventListener("pointerup",   () => { drag = false; });
+}
+
+function renderPlane(){
+  const x = px(Math.log10(S.xi)), y = py(Math.log10(S.ups));
+  cur.dot.setAttribute("cx", x); cur.dot.setAttribute("cy", y);
+  cur.halo.setAttribute("cx", x); cur.halo.setAttribute("cy", y);
+  cur.hx.setAttribute("x1", px(LO)); cur.hx.setAttribute("x2", x);
+  cur.hx.setAttribute("y1", y); cur.hx.setAttribute("y2", y);
+  cur.hy.setAttribute("x1", x); cur.hy.setAttribute("x2", x);
+  cur.hy.setAttribute("y1", py(LO)); cur.hy.setAttribute("y2", y);
+  const left = x > P.w-150;
+  cur.lab.setAttribute("x", left ? x-12 : x+12);
+  cur.lab.setAttribute("y", y-12);
+  cur.lab.setAttribute("text-anchor", left ? "end" : "start");
+  cur.lab.setAttribute("fill", "var(--accent)");
+  cur.lab.textContent = `ϒ = ${fmt(S.ups)}, Ξ = ${fmt(S.xi)}`;
+  const onBound = S.ups*S.xi < 1.02;
+  boundLine.setAttribute("stroke-width", onBound ? 2.6 : 1.6);
+  boundLine.setAttribute("stroke", onBound ? "var(--accent)" : "var(--forbid)");
+}
+
+/* ------------------------------------------------------------ the forest */
+const F = {w:560, h:330, m:{l:14, r:14, t:34, b:26}};
+let forestG;
+function buildForest(){
+  const svg = $("forest");
+  forestG = el("g", {}, svg);
+}
+function renderForest(){
+  const {sq, stot, b, ss} = params();
+  forestG.replaceChildren();
+  const H = Math.max(2.7*stot + Math.abs(b), 1.55*sq, 3);
+  const X = v => F.w/2 + v/(2*H)*(F.w-F.m.l-F.m.r);
+  /* exact-width band + truth */
+  el("rect", {x:X(-1), y:F.m.t-22, width:X(1)-X(-1), height:F.h-F.m.t-F.m.b+22,
+              fill:"var(--band)"}, forestG);
+  el("line", {x1:X(0), y1:F.m.t-22, x2:X(0), y2:F.h-F.m.b,
+              stroke:"var(--ink)", "stroke-dasharray":"4 4", "stroke-width":1}, forestG);
+  /* reference widths, top */
+  el("line", {x1:X(-sq), y1:F.m.t-14, x2:X(sq), y2:F.m.t-14,
+              stroke:"var(--accent)", "stroke-width":5}, forestG);
+  el("line", {x1:X(-1), y1:F.m.t-4, x2:X(1), y2:F.m.t-4,
+              stroke:"var(--muted)", "stroke-width":5}, forestG);
+  const xq = Math.max(sq, 0.13*H), lq = el("text", {x:X(xq)+6, y:F.m.t-10,
+              "font-size":10.5, fill:"var(--accent)"}, forestG);
+  lq.textContent = "quoted";
+  const le = el("text", {x:X(xq)+6, y:F.m.t+0, "font-size":10.5, class:"mut"}, forestG);
+  le.textContent = "exact";
+  /* rows */
+  const n = U.length, dy = (F.h-F.m.t-F.m.b-6)/n;
+  let nc = 0;
+  for (let i = 0; i < n; i++){
+    const th = b + ss*U[i], y = F.m.t + 10 + (i+.5)*dy;
+    const covers = Math.abs(th) <= sq; nc += covers;
+    const op = covers ? .95 : .32;
+    el("line", {x1:X(th-sq), y1:y, x2:X(th+sq), y2:y, stroke:"var(--accent)",
+                "stroke-width":2.4, opacity:op}, forestG);
+    el("circle", {cx:X(th), cy:y, r:2.6, fill:covers?"var(--accent)":"var(--card)",
+                  stroke:"var(--accent)", "stroke-width":1, opacity:Math.max(op,.55)}, forestG);
+  }
+  const ct = el("text", {x:F.w-F.m.r, y:F.h-8, "text-anchor":"end",
+                         "font-size":12, "font-weight":600}, forestG);
+  ct.textContent = `covering the truth: ${nc}/${n}  (expect ${Math.round(68* n/100)}/${n} if honest)`;
+  const sc = el("text", {x:F.m.l, y:F.h-8, "font-size":11, class:"mut"}, forestG);
+  sc.textContent = "grey band: the width the data allow (±1 exact σ)";
+}
+
+/* --------------------------------------------------------------- PP plot */
+const Q = {w:330, h:330, m:{l:44, r:12, t:12, b:40}};
+const qx = p => Q.m.l + p*(Q.w-Q.m.l-Q.m.r);
+const qy = c => Q.h-Q.m.b - c*(Q.h-Q.m.t-Q.m.b);
+let ppCur;
+function pathOf(cov){
+  let d = "";
+  for (let i = 0; i <= 120; i++){
+    const p = i/120, c = Math.min(Math.max(cov(p), 0), 1);
+    d += (i ? "L" : "M") + qx(p).toFixed(1) + " " + qy(c).toFixed(1);
+  }
+  return d;
+}
+function buildPP(){
+  const svg = $("pp");
+  el("rect", {x:Q.m.l, y:Q.m.t, width:Q.w-Q.m.l-Q.m.r, height:Q.h-Q.m.t-Q.m.b,
+              fill:"none", stroke:"var(--rule)"}, svg);
+  for (const v of [.25,.5,.75]){
+    el("line", {x1:qx(v), y1:qy(0), x2:qx(v), y2:qy(1), stroke:"var(--rule)", "stroke-width":.7}, svg);
+    el("line", {x1:qx(0), y1:qy(v), x2:qx(1), y2:qy(v), stroke:"var(--rule)", "stroke-width":.7}, svg);
+  }
+  for (const v of [0,.5,1]){
+    const tx = el("text", {x:qx(v), y:Q.h-Q.m.b+16, "text-anchor":"middle", "font-size":11, class:"mut"}, svg);
+    tx.textContent = v.toFixed(1);
+    const ty = el("text", {x:Q.m.l-7, y:qy(v)+4, "text-anchor":"end", "font-size":11, class:"mut"}, svg);
+    ty.textContent = v.toFixed(1);
+  }
+  el("line", {x1:qx(0), y1:qy(0), x2:qx(1), y2:qy(1), stroke:"var(--ink)",
+              "stroke-dasharray":"4 4", "stroke-width":1}, svg);
+  for (const a of ANCHORS)
+    el("path", {d:pathOf(p => coverageOf(a.ups, a.xi, p)), fill:"none",
+                stroke:`var(${a.cvar})`, "stroke-width":1.2, opacity:.4}, svg);
+  ppCur = el("path", {fill:"none", stroke:"var(--accent)", "stroke-width":2.6}, svg);
+  const xt = el("text", {x:(qx(0)+qx(1))/2, y:Q.h-6, "text-anchor":"middle", "font-size":12.5}, svg);
+  xt.textContent = "credible level p";
+  const yt = el("text", {x:12, y:(qy(0)+qy(1))/2, "font-size":12.5, "text-anchor":"middle",
+                         transform:`rotate(-90 12 ${(qy(0)+qy(1))/2})`}, svg);
+  yt.textContent = "fraction of injections inside";
+}
+function renderPP(){ ppCur.setAttribute("d", pathOf(coverage)); }
+
+/* ---------------------------------------------------------------- verdict */
+function verdictText(){
+  const c68 = coverage(.68), c90 = coverage(.90);
+  const {b, sq} = params();
+  let cal;
+  if (S.ups < .93)      cal = "conservative — the bars are wider than the estimates actually scatter";
+  else if (S.ups <= 1.08) cal = "calibrated — the quoted bars mean what they say";
+  else if (S.ups <= 2)  cal = "overconfident — the estimates scatter beyond the quoted bars";
+  else                  cal = "badly overconfident — the quoted bars are close to meaningless";
+  let eff;
+  if (S.xi <= 1.08)     eff = "and essentially optimal: the quoted width is the width the data allow.";
+  else if (S.xi <= 3)   eff = `but lossy: intervals are ${fmt(S.xi)}× wider than the data allow.`;
+  else                  eff = `and badly lossy: intervals are ${fmt(S.xi)}× wider than the data allow — information thrown away.`;
+  if (S.xi < .93)       eff = `while quoting ${fmt(1/S.xi)}× narrower than the exact analysis — claiming information the data do not hold.`;
+  let bias = "";
+  if (S.biasFrac > .02 && b > .02)
+    bias = ` A systematic offset of ${fmt(b/sq)}× the quoted width shifts every interval the same way.`;
+  return {c68, c90, text: cal + ", " + eff + bias};
+}
+function renderVerdict(){
+  const v = verdictText();
+  $("verdict").innerHTML =
+    `<h2>Reading</h2>
+     <div class="bignum"><i>ϒ</i> = ${fmt(S.ups)} &nbsp;&middot;&nbsp; <i>Ξ</i> = ${fmt(S.xi)}
+       &nbsp;<small><i>ϒ</i>&middot;<i>Ξ</i> = ${fmt(S.ups*S.xi)} (&ge; 1)</small></div>
+     <p>${v.text}</p>
+     <p class="read">a quoted <b>68%</b> interval truly covers <b>${(100*v.c68).toFixed(0)}%</b>
+        &nbsp;&middot;&nbsp; a quoted <b>90%</b> covers <b>${(100*v.c90).toFixed(0)}%</b></p>`;
+}
+
+/* ------------------------------------------------------ sliders and state */
+const toSlider = v => Math.round((Math.log10(v)-LO)/(HI-LO)*1000);
+const fromSlider = s => Math.pow(10, LO + s/1000*(HI-LO));
+function setState(ups, xi, biasFrac){
+  if (ups*xi < 1){ ups = 1/xi; }                      /* the bound, hard */
+  S.ups = Math.min(Math.max(ups, Math.pow(10,LO)), Math.pow(10,HI));
+  S.xi  = Math.min(Math.max(xi,  Math.pow(10,LO)), Math.pow(10,HI));
+  if (S.ups*S.xi < 1) S.ups = 1/S.xi;
+  S.biasFrac = biasFrac;
+  $("s-ups").value = toSlider(S.ups);
+  $("s-xi").value  = toSlider(S.xi);
+  $("s-bias").value = Math.round(100*S.biasFrac);
+  $("o-ups").textContent = fmt(S.ups);
+  $("o-xi").textContent  = fmt(S.xi);
+  $("o-bias").textContent = Math.round(100*S.biasFrac) + "%";
+  renderPlane(); renderForest(); renderPP(); renderVerdict();
+}
+function buildChips(){
+  for (const a of ANCHORS){
+    const btn = document.createElement("button");
+    btn.className = "chip"; btn.type = "button";
+    btn.innerHTML = `<span class="dot" style="background:var(${a.cvar})"></span>
+                     ${a.name} <span style="color:var(--muted)">&middot; ${a.note}</span>`;
+    btn.addEventListener("click", () => setState(a.ups, a.xi, 0));
+    $("chips").appendChild(btn);
+  }
+}
+$("s-ups").addEventListener("input", e => setState(fromSlider(+e.target.value), S.xi, S.biasFrac));
+$("s-xi").addEventListener("input", e => {
+  let xi = fromSlider(+e.target.value);
+  let ups = S.ups;
+  if (ups*xi < 1) xi = 1/ups;                         /* Xi slider also stops */
+  setState(ups, xi, S.biasFrac);
+});
+$("s-bias").addEventListener("input", e => setState(S.ups, S.xi, +e.target.value/100));
+
+buildPlane(); buildForest(); buildPP(); buildChips();
+setState(1.23, 13.73, 0);                              /* start on a paper point */
+</script>
+</body>
+</html>
