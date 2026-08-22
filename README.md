@@ -219,6 +219,32 @@ true windowed covariance, leading-order biases, MLE scatter, the Υ/Ξ
 diagnostics, KL pseudo-true parameters, Godambe–White sandwich) lives in
 `paper/diagnostics.py`, on top of the package.
 
+## Honest error bars: Υ and Ξ
+
+Two numbers summarize what an approximate likelihood does to an inference:
+**Υ = true scatter / quoted width** (calibration — is the error bar honest?)
+and **Ξ = quoted width / exact-analysis width** (efficiency — was all the
+information used?). Honest data cannot beat the exact analysis, so
+**Υ·Ξ ≥ 1**, with equality only for the exact likelihood.
+
+<img src="assets/upsilon_xi_quadrants.gif" width="600"/>
+
+*The four regimes as repeated experiments — every case a measured value
+from Table III of the paper. A PP plot sees only Υ: the
+calibrated-but-inflated analysis (top right, Ξ = 9.3) passes any PP test
+while quoting error bars 9.3× wider than the data allow; the companion
+`assets/upsilon_xi_pp.gif` shows exactly that. Rendered by
+[`notebooks/anim_upsilon_xi.py`](notebooks/anim_upsilon_xi.py).*
+
+[**The Υ and Ξ diagnostics**](https://federicopozzoli.github.io/gaplike/upsilon_xi.html)
+page in the docs derives both quantities, compares them with PP plots, and
+explains how to read them. The
+[**interactive Υ–Ξ explorer**](https://federicopozzoli.github.io/gaplike/_static/upsilon_xi_explorer.html)
+(also a single offline file, [`assets/upsilon_xi_explorer.html`](assets/upsilon_xi_explorer.html))
+puts them on sliders: drag a point around the (Ξ, Υ) plane with the
+forbidden Υ·Ξ < 1 region hatched out, click the paper's measured anchors to
+load them, and watch the intervals and the PP curve respond.
+
 ## Repository layout
 
 | path | content |
@@ -228,6 +254,7 @@ diagnostics, KL pseudo-true parameters, Godambe–White sandwich) lives in
 | `notebooks/exact_inference_demo.ipynb` | executable end-to-end example (**no lisabeta**): gapped two-channel LISA noise + toy chirp, joint 4-parameter PE with `TimeDomainExact` and `FullCovariance`, comparison corner |
 | `notebooks/mbhb_gaps_demo.ipynb` | inject an MBHB with arbitrary parameters (lisabeta), compare five gap configurations, and set up a full 13-parameter inference ready to launch |
 | `paper/` | full paper reproduction (scenarios A/B/C, PE, every figure incl. the CG scaling benchmark) — see `paper/README.md` |
+| `assets/`, `notebooks/anim_upsilon_xi.py` | talk media: the gap-leakage animation, the Υ/Ξ animations and the interactive Υ–Ξ explorer |
 
 ## Tests
 
