@@ -26,7 +26,7 @@ then sharp-edged gaps, then tapered gap edges. Watch the spectral kernel, the
 modelled PSD and the bin-to-bin correlation matrix move together. Rendered by
 [`notebooks/anim_leakage.py`](notebooks/anim_leakage.py).*
 
-Companion package to *"Zurückbleiben bitte: the impact of window functions on
+Companion package to *"Zurückbleiben bitte: the impact of gaps on
 noise and signal parameter inference"* (O. Burke, F. Pozzoli & M. Muratore); the `paper/`
 folder reproduces every figure of that paper.
 
