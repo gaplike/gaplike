@@ -1,6 +1,6 @@
 # Paper reproduction — gapped-MBHB study
 
-Reproduces every figure of *"Zurückbleiben bitte"* (Burke & Pozzoli): joint
+Reproduces every figure of *"Zurückbleiben bitte"* (Burke, Pozzoli & Muratore): joint
 13-parameter (11 signal + 2 noise) inference of an IMRPhenomHM MBHB and the
 TM/OMS noise amplitudes on a 12 h LISA TDI-2 A/E segment, under three
 controlled gap scenarios:

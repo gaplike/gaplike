@@ -15,7 +15,7 @@ model is built in; user-defined PSD components and any waveform work the same
 way.
 
 Companion package to *"Zurückbleiben bitte: the impact of window functions on
-noise and signal parameter inference"* (O. Burke & F. Pozzoli). The
+noise and signal parameter inference"* (O. Burke, F. Pozzoli & M. Muratore). The
 [`paper/`](https://github.com/gaplike/gaplike/tree/main/paper)
 directory reproduces every figure of that work.
 
@@ -82,7 +82,7 @@ api
 
 ## Citing
 
-Please cite the software (see `CITATION.cff`) together with Burke & Pozzoli
+Please cite the software (see `CITATION.cff`) together with Burke, Pozzoli & Muratore
 (2026), *Zurückbleiben bitte: the impact of window functions on noise and
 signal parameter inference*.
 

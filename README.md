@@ -27,7 +27,7 @@ modelled PSD and the bin-to-bin correlation matrix move together. Rendered by
 [`notebooks/anim_leakage.py`](notebooks/anim_leakage.py).*
 
 Companion package to *"Zurückbleiben bitte: the impact of window functions on
-noise and signal parameter inference"* (O. Burke & F. Pozzoli); the `paper/`
+noise and signal parameter inference"* (O. Burke, F. Pozzoli & M. Muratore); the `paper/`
 folder reproduces every figure of that paper.
 
 Only `numpy` and `scipy` are required. The two-component LISA TDI-2 A/E noise
@@ -279,7 +279,7 @@ windows, covariances, noise realization and all likelihood values to ~1e-9.
 ## Citing
 
 If you use `gaplike`, please cite the software (see `CITATION.cff`) together
-with Burke & Pozzoli (2026), *Zurückbleiben bitte: the impact of window
+with Burke, Pozzoli & Muratore (2026), *Zurückbleiben bitte: the impact of window
 functions on noise and signal parameter inference* (in prep.).
 
 ## License
