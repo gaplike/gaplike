@@ -1,0 +1,38 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite both the software (this file) and the accompanying paper."
+title: "gaplike: exact inference on gapped and windowed stationary Gaussian data"
+abstract: >-
+  Joint signal and noise-parameter estimation for stationary Gaussian time
+  series interrupted by data gaps. Provides gap-pattern generation, windowed
+  frequency-domain covariances, and a hierarchy of likelihoods from the
+  Whittle approximation to the exact time-domain solver, the latter evaluated
+  either in closed form (two noise components, simultaneous diagonalization)
+  or matrix-free at arbitrary scale by preconditioned conjugate gradients.
+type: software
+authors:
+  - family-names: Pozzoli
+    given-names: Federico
+    email: federico.pozzoli@aei.mpg.de
+    orcid: "https://orcid.org/0009-0009-6265-584X"
+    affiliation: "Max Planck Institute for Gravitational Physics (Albert Einstein Institute), Potsdam, Germany"
+  - family-names: Burke
+    given-names: Ollie
+    email: ollie.burke@glasgow.ac.uk
+    orcid: "https://orcid.org/0000-0003-2393-209X"
+    affiliation: "School of Physics and Astronomy, University of Glasgow, Glasgow, United Kingdom"
+  - family-names: Muratore
+    given-names: Martina
+    affiliation: "Max Planck Institute for Gravitational Physics (Albert Einstein Institute), Potsdam, Germany"
+version: 1.0.0
+date-released: "2026-08-25"
+license: MIT
+repository-code: "https://github.com/FedericoPozzoli/gaplike"
+url: "https://federicopozzoli.github.io/gaplike/"
+keywords:
+  - LISA
+  - gravitational waves
+  - data gaps
+  - window functions
+  - Whittle likelihood
+  - conjugate gradients
+  - Bayesian inference

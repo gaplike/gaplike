@@ -42,6 +42,15 @@ same way.
 everything into it: the commonest way to lose an afternoon here is to install
 with one tool and run with another.
 
+### From PyPI
+
+```bash
+pip install gaplike
+```
+
+Everything below installs from a clone instead, which you want if you also
+need the paper reproduction pipeline in `paper/`.
+
 ### Into an environment you already have (conda, system Python, ...)
 
 ```bash
