@@ -3,7 +3,7 @@
 `gaplike` needs only `numpy` and `scipy`.
 
 ```bash
-git clone https://github.com/FedericoPozzoli/gaplike
+git clone https://github.com/gaplike/gaplike
 cd gaplike
 uv venv && uv pip install -e .
 ```

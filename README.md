@@ -3,8 +3,8 @@
   <img alt="gaplike" src="docs/_static/logo-wordmark.svg" width="330">
 </picture>
 
-[![tests](https://github.com/FedericoPozzoli/gaplike/actions/workflows/tests.yml/badge.svg)](https://github.com/FedericoPozzoli/gaplike/actions/workflows/tests.yml)
-[![docs](https://github.com/FedericoPozzoli/gaplike/actions/workflows/docs.yml/badge.svg)](https://github.com/FedericoPozzoli/gaplike/actions/workflows/docs.yml)
+[![tests](https://github.com/gaplike/gaplike/actions/workflows/tests.yml/badge.svg)](https://github.com/gaplike/gaplike/actions/workflows/tests.yml)
+[![docs](https://github.com/gaplike/gaplike/actions/workflows/docs.yml/badge.svg)](https://github.com/gaplike/gaplike/actions/workflows/docs.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **Inference on gapped / windowed stationary Gaussian data.**
@@ -34,7 +34,7 @@ Only `numpy` and `scipy` are required. The two-component LISA TDI-2 A/E noise
 model is built in; any user-defined PSD components and any waveform work the
 same way.
 
-**Documentation: <https://federicopozzoli.github.io/gaplike/>**
+**Documentation: <https://gaplike.github.io/gaplike/>**
 
 ## Install
 
@@ -245,10 +245,10 @@ while quoting error bars 9.3× wider than the data allow; the companion
 `assets/upsilon_xi_pp.gif` shows exactly that. Rendered by
 [`notebooks/anim_upsilon_xi.py`](notebooks/anim_upsilon_xi.py).*
 
-[**The Υ and Ξ diagnostics**](https://federicopozzoli.github.io/gaplike/upsilon_xi.html)
+[**The Υ and Ξ diagnostics**](https://gaplike.github.io/gaplike/upsilon_xi.html)
 page in the docs derives both quantities, compares them with PP plots, and
 explains how to read them. The
-[**interactive Υ–Ξ explorer**](https://federicopozzoli.github.io/gaplike/_static/upsilon_xi_explorer.html)
+[**interactive Υ–Ξ explorer**](https://gaplike.github.io/gaplike/_static/upsilon_xi_explorer.html)
 (also a single offline file, [`assets/upsilon_xi_explorer.html`](assets/upsilon_xi_explorer.html))
 puts them on sliders: drag a point around the (Ξ, Υ) plane with the
 forbidden Υ·Ξ < 1 region hatched out, click the paper's measured anchors to

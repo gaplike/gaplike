@@ -26,8 +26,8 @@ authors:
 version: 1.0.0
 date-released: "2026-08-25"
 license: MIT
-repository-code: "https://github.com/FedericoPozzoli/gaplike"
-url: "https://federicopozzoli.github.io/gaplike/"
+repository-code: "https://github.com/gaplike/gaplike"
+url: "https://gaplike.github.io/gaplike/"
 keywords:
   - LISA
   - gravitational waves

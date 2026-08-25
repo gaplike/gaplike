@@ -31,7 +31,7 @@ dependencies = [
 ]
 
 [project.urls]
-Repository = "https://github.com/FedericoPozzoli/gaplike"
+Repository = "https://github.com/gaplike/gaplike"
 
 [project.optional-dependencies]
 # sampling + plotting: everything needed to reproduce the paper figures from

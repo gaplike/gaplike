@@ -70,13 +70,13 @@ html_theme_options = {
     "sidebar_hide_name": True,          # the wordmark already says it
     "light_logo": "logo-wordmark.svg",
     "dark_logo": "logo-wordmark-dark.svg",
-    "source_repository": "https://github.com/FedericoPozzoli/gaplike/",
+    "source_repository": "https://github.com/gaplike/gaplike/",
     "source_branch": "main",
     "source_directory": "docs/",
     "footer_icons": [
         {
             "name": "GitHub",
-            "url": "https://github.com/FedericoPozzoli/gaplike",
+            "url": "https://github.com/gaplike/gaplike",
             "class": "",
             "html": (
                 '<svg stroke="currentColor" fill="currentColor" viewBox="0 0 16 16">'

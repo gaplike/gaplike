@@ -32,7 +32,7 @@
   ],
   "related_identifiers": [
     {
-      "identifier": "https://github.com/FedericoPozzoli/gaplike",
+      "identifier": "https://github.com/gaplike/gaplike",
       "relation": "isSupplementTo",
       "scheme": "url"
     }

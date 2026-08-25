@@ -16,11 +16,11 @@ way.
 
 Companion package to *"Zurückbleiben bitte: the impact of window functions on
 noise and signal parameter inference"* (O. Burke & F. Pozzoli). The
-[`paper/`](https://github.com/FedericoPozzoli/gaplike/tree/main/paper)
+[`paper/`](https://github.com/gaplike/gaplike/tree/main/paper)
 directory reproduces every figure of that work.
 
 ```bash
-git clone https://github.com/FedericoPozzoli/gaplike
+git clone https://github.com/gaplike/gaplike
 cd gaplike && uv pip install -e ".[pe]"
 ```
 

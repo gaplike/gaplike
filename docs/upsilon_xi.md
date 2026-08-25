@@ -113,7 +113,7 @@ second — the product of two mean-score traces — is the outer product of the
 leading-order bias, $b_a b_b$.
 
 In this repository the implementation is
-[`paper/diagnostics.py`](https://github.com/FedericoPozzoli/gaplike/blob/main/paper/diagnostics.py)
+[`paper/diagnostics.py`](https://github.com/gaplike/gaplike/blob/main/paper/diagnostics.py)
 (`ApproxModel.upsilon_s`, `.xi_s`, `.upsilon_n`, `.xi_n`, plus the
 Godambe–White sandwich and KL pseudo-true bias for the nonlinear noise
 sector); `paper/dump_upsxi.py` tabulates every scenario and model tier into
@@ -201,7 +201,7 @@ $\Upsilon\,\Xi \ge 1$), a draggable point on the $(\Xi, \Upsilon)$ plane
 with the forbidden region hatched out, the paper anchors click-to-load, a
 systematic-offset dial, and live repeated-experiment and PP views. It is a
 single self-contained HTML file
-([`assets/upsilon_xi_explorer.html`](https://github.com/FedericoPozzoli/gaplike/blob/main/assets/upsilon_xi_explorer.html))
+([`assets/upsilon_xi_explorer.html`](https://github.com/gaplike/gaplike/blob/main/assets/upsilon_xi_explorer.html))
 — open it in any browser, mid-talk included.
 
 Both animations are rendered by `notebooks/anim_upsilon_xi.py` (numpy /
