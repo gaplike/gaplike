@@ -1,6 +1,6 @@
 {
   "title": "gaplike: exact inference on gapped and windowed stationary Gaussian data",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "upload_type": "software",
   "license": "MIT",
   "description": "<p>Joint signal and noise-parameter estimation for stationary Gaussian time series interrupted by data gaps.</p><p><code>gaplike</code> provides gap-pattern generation (arbitrary patterns, tapered or rectangular), windowed frequency-domain covariances, and a hierarchy of likelihoods: the raw and window-power-scaled Whittle approximations, the exact convolved diagonal, the dense band-restricted windowed covariance, and the exact time-domain likelihood of the observed samples. The last is evaluated either in closed form, when the noise is linear in two component powers (simultaneous diagonalization, O(m) per evaluation), or matrix-free at arbitrary scale by preconditioned conjugate gradients, for which the covariance is never formed and one solve costs a few hundred FFT pairs.</p><p>This archive contains the package, its test suite, worked example notebooks, and the full reproduction pipeline for every figure of the accompanying paper, including the cached posterior chains.</p>",

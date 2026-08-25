@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "gaplike"
-version = "1.0.0"
+version = "0.1.0"
 description = "Gapped/windowed stationary Gaussian inference: gap-pattern generation, windowed frequency-domain covariances, and exact time-domain likelihoods (closed-form or matrix-free)"
 readme = "README.md"
 requires-python = ">=3.9"

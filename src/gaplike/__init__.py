@@ -23,7 +23,7 @@ from .cg import RestrictedCG
 from .slq import ComplementFactor
 from .waveform import Waveform
 
-__version__ = "1.0.0"
+__version__ = "0.1.0"
 
 __all__ = [
     "gaps", "psd", "covariance", "simulate", "likelihood", "waveform", "cg",
