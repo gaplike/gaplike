@@ -105,6 +105,62 @@ $N^{0.96}$ at the smallest sizes to $N^{0.11}$ over the last octave, as one
 would expect if the conditioning is set by the geometry of the gaps rather
 than by the length of the record.
 
+### Which preconditioner
+
+The circulant (Whittle) preconditioner above is one of two proposed in
+[Baghi et al. (2016)](https://arxiv.org/abs/1608.08530). The other builds a
+*sparse* approximation of $\Sigma_{OO}$ itself: taper the time-domain
+autocovariance to zero beyond a lag $L$, evaluate it at the true lag
+$t_i - t_j$ between observed samples, and factorize the resulting banded
+matrix with `scipy.linalg.cholesky_banded`.
+
+The two fail in opposite directions, and the reason is worth stating plainly:
+
+* The **circulant** preconditioner is the exact inverse of the *gap-free*
+  covariance. It is perfect where the record is uninterrupted, so what it
+  leaves behind is entirely the gaps — and its iteration count grows with
+  their **number**, measured as $n_{\rm g}^{0.64}$ at fixed missing time.
+* The **sparse** preconditioner is built from the *true restricted*
+  covariance. It knows where the holes are, but throws away every correlation
+  beyond lag $L$. That cut only costs it when a surviving segment is longer
+  than $L$ — and when the gaps are closely spaced, none of them are. Its
+  iteration count is a function of $\ell/L$ alone, with $\ell$ the mean
+  surviving-segment length: curves for different $L$ collapse to about 20% on
+  that variable, rising roughly as $(\ell/L)^{1/2}$.
+
+At $N = 8192$ with 15% of the record missing, chopped into $n_{\rm g}$ equal
+gaps, the circulant route runs from 20 iterations at $n_{\rm g} = 1$ to 633 at
+$n_{\rm g} = 256$, while the sparse route at $L = 32$ runs from 635 down to 34.
+Pricing one likelihood call — $\mathcal{O}(N)$ to rebuild the circulant
+eigenvalues, against $\mathcal{O}(mL^2)$ for the banded Cholesky, since
+$\Sigma_{OO}$ moves with the noise parameters at every proposal — puts the
+crossover near $n_{\rm g} \simeq 20$. Both return the same quadratic form to
+$5\times10^{-15}$. The rule of thumb:
+
+> **A few long gaps → circulant. Many short gaps → sparse.**
+
+Even spacing is the best case for both. At $n_{\rm g} = 16$, scattering the
+same gaps at random takes the circulant count from 145 to 187 and the sparse
+one (at $L=128$) from 40 to 79, without changing which is cheaper.
+
+Positive-definiteness of the tapered autocovariance is not automatic, and the
+banded Cholesky is what checks it. By the Schur product theorem it is
+guaranteed when the taper is itself a positive-definite function of the lag:
+the Bartlett taper (the Fejér kernel) qualifies and never failed, but costs
+4–10× more iterations. The Hann taper is *not* PD as a function — the minimum
+of its lag-spectrum is $-3.4$ — yet succeeded for every pattern and every $L$
+tried, and is the better default. Hard truncation (no taper, spectral minimum
+$-55.8$) genuinely fails: it was not positive definite for three of four gap
+patterns tested. Catch the `LinAlgError` and fall back to Bartlett.
+
+`gaplike.cg` ships the circulant preconditioner as
+{func}`~gaplike.cg.whittle_preconditioner` because it carries no tuning
+parameter; the sparse one is a drop-in `LinearOperator` on the `M=` argument
+of {func}`~gaplike.cg.solve`, and `paper/fig_precond_compare.py` builds it in
+about thirty lines. Note that its per-component band arrays do not depend on
+the noise parameters — $\gamma$ is linear in $10^{\lambda}$ — so they are
+built once and recombined at each proposal; only the Cholesky is per-call.
+
 The determinant is deliberately not provided by `gaplike.cg` itself. With
 exactly two components the closed form of `TimeDomainExact` already supplies
 it; in general {mod}`gaplike.slq` provides the two matrix-free companions —

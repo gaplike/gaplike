@@ -119,6 +119,34 @@ Godambe–White sandwich and KL pseudo-true bias for the nonlinear noise
 sector); `paper/dump_upsxi.py` tabulates every scenario and model tier into
 `paper/results/upsxi_dump.json`.
 
+### When is the linearised $\Upsilon$ enough?
+
+The linearised expression above and the Godambe–White sandwich are the same
+object evaluated at two different points: the first takes one Newton step from
+$\lambda^{\rm true}$, the second sits at the pseudo-true point
+$\lambda^\star$. They therefore agree exactly when $\lambda^\star =
+\lambda^{\rm true}$, which happens whenever the model reproduces the **true
+diagonal** of the windowed covariance — then the expected score vanishes term
+by term. That is a property of the model, not of the gap pattern: the full
+covariance and the convolved diagonal hold it across gap patterns from one
+2 h gap to a 57-gap comb, their two $\Upsilon$ curves agreeing to $10^{-5}$
+while $\Upsilon$ itself climbs from 1.15 to 1.43.
+
+Note this is *weaker* than the information equality. The convolved diagonal
+still has $J \neq H$ — that is exactly why its $\Upsilon$ exceeds 1 — so it
+still needs a sandwich; the point is only that the sandwich may be evaluated
+at $\lambda^{\rm true}$.
+
+Away from that point the two part company at a rate set by how far
+$\lambda^\star$ has moved: to leading order the relative error of the
+linearised formalism is $\tfrac{1}{2}\ln 10\,|\Delta\lambda^\star| \simeq
+1.15\,|\Delta\lambda^\star|$, with $\Delta\lambda^\star$ in dex (fitted
+prefactor 1.14 over four decades). For the raw PSD and the scalar $W_c$
+correction $|\Delta\lambda^\star|$ never drops below 0.17 dex — the 5%
+segment-edge Tukey window alone mis-specifies them — and the linearised
+$\Upsilon$ overstates the sandwich by up to a factor of 41.
+`paper/fig_upsilon_formalisms.py` reproduces the comparison.
+
 ## Why not just a PP plot?
 
 A PP plot answers one question: over many injections, does the true value

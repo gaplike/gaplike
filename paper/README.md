@@ -18,7 +18,8 @@ paper configuration and drive the runs.
 ```bash
 uv pip install -e "..[pe]"   # gaplike + emcee + corner + matplotlib
 # plus lisabeta (waveform): https://gitlab.in2p3.fr/marsat/lisabeta
-# (lisabeta is NOT needed for the scaling benchmarks, steps 3-4)
+# (lisabeta is NOT needed for steps 3-6: the benchmarks and the two
+#  formalism/preconditioner figures)
 ```
 
 ## Reproduce
@@ -41,7 +42,17 @@ python ensemble_noise.py           # 300-realization ensemble verification
 python fig_cg_scaling.py           # ~15-30 min -> results/cg_scaling.json
 python _mkfig.py                   # -> figures/cg_scaling.{png,pdf}
 
-# 4. the determinant benchmark (beyond the paper): dense Cholesky vs the
+# 4. the two preconditioners (Fig. precond_compare) — gaplike only:
+#    circulant (Whittle) vs sparse tapered autocovariance, as the same
+#    missing time is chopped into 1 ... 256 gaps
+python fig_precond_compare.py      # ~4 min -> results/ + figures/
+
+# 5. linearised vs Godambe/White (Fig. upsilon_formalisms) — noise sector
+#    only, no lisabeta, no chains: Upsilon computed both ways for the four
+#    covariance models over 57 gap patterns at fixed missing time
+python fig_upsilon_formalisms.py   # ~8 min -> results/ + figures/
+
+# 6. the determinant benchmark (beyond the paper): dense Cholesky vs the
 #    exact complement identity vs matrix-free SLQ, plus the shared-probe
 #    difference experiments -- gaplike only, no lisabeta, no chains
 python fig_det_scaling.py --kmax-slq 14 --kmax-dense 14 --kmax-comp 15
@@ -70,5 +81,7 @@ identical; re-run step 3 for full-resolution chains).
 | `make_figures.py` | one entry point: regenerates the chain-based figures from `results/` |
 | `diagnostics.py` | analytic machinery on top of gaplike: Fisher under the true covariance, ApproxModel (biases, scatter, Υ/Ξ), KL pseudo-true, Godambe/White sandwich |
 | `fig_cg_scaling.py`, `_mkfig.py` | CG-vs-dense scaling benchmark and its figure (depends on `gaplike` only) |
+| `fig_precond_compare.py` | circulant vs sparse-tapered preconditioner, iterations and cost per likelihood call against the number of gaps (`gaplike` only) |
+| `fig_upsilon_formalisms.py` | Υ from the linearised formalism and from Godambe/White, four covariance models, over a sweep of gap patterns at fixed missing time (no lisabeta) |
 | `fig_det_scaling.py`, `fig_det_flexible.py`, `mkfig_det.py` | log-determinant benchmark, beyond the paper: dense vs the exact complement identity vs SLQ, shared-probe determinant differences, and their figure (`gaplike.slq` only) |
-| `results/`, `figures/` | cached PE chains + `cg_scaling.json` (reference timings: 2 cores, Intel Xeon 2.80 GHz); regenerated figures |
+| `results/`, `figures/` | cached PE chains + `cg_scaling.json` and `precond_compare.json` (reference timings: 2 cores, Intel Xeon 2.80 GHz) + `upsilon_formalisms.json`; regenerated figures |

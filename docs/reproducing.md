@@ -37,6 +37,31 @@ python _mkfig.py              # -> figures/cg_scaling.{png,pdf}
 ships with reference timings (two cores of an Intel Xeon at 2.80 GHz), so
 `_mkfig.py` works out of the box.
 
+## The preconditioner comparison
+
+Also `gaplike` alone. Circulant (Whittle) against the sparse tapered
+autocovariance of [Baghi et al. (2016)](https://arxiv.org/abs/1608.08530), as
+a fixed amount of missing time is chopped into 1 … 256 gaps: iteration count
+and cost per likelihood call. See [Which preconditioner](likelihoods.md) for
+what the two curves mean.
+
+```bash
+python fig_precond_compare.py   # -> results/precond_compare.json  (~4 min)
+python fig_precond_compare.py --plot        # redraw from the cache
+```
+
+## Linearised vs Godambe–White
+
+Noise sector only — no lisabeta, no chains. Computes $\Upsilon$ both ways for
+the four covariance models over 57 gap patterns at fixed missing time, which
+is how [Υ and Ξ](upsilon_xi.md) states the criterion for when the linearised
+formalism suffices.
+
+```bash
+python fig_upsilon_formalisms.py            # -> results/  (~8 min)
+python fig_upsilon_formalisms.py --plot     # redraw from the cache
+```
+
 ## The determinant benchmark
 
 Beyond the paper: the same comparison for the likelihood's other half,
