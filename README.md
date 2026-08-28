@@ -5,6 +5,7 @@
 
 [![tests](https://github.com/gaplike/gaplike/actions/workflows/tests.yml/badge.svg)](https://github.com/gaplike/gaplike/actions/workflows/tests.yml)
 [![docs](https://github.com/gaplike/gaplike/actions/workflows/docs.yml/badge.svg)](https://github.com/gaplike/gaplike/actions/workflows/docs.yml)
+[![PyPI](https://img.shields.io/pypi/v/gaplike.svg)](https://pypi.org/project/gaplike/)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 **Inference on gapped / windowed stationary Gaussian data.**
@@ -45,11 +46,13 @@ with one tool and run with another.
 ### From PyPI
 
 ```bash
-pip install gaplike
+pip install gaplike                 # everything except paper/ and the notebooks
+pip install "gaplike[pe]"           # + emcee, corner, matplotlib
 ```
 
-Everything below installs from a clone instead, which you want if you also
-need the paper reproduction pipeline in `paper/`.
+That is all the package itself needs. Everything below installs from a clone
+instead, which you want only if you also need the paper reproduction pipeline
+in `paper/`, the notebooks, or the test suite.
 
 ### Into an environment you already have (conda, system Python, ...)
 

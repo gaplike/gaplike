@@ -3,12 +3,23 @@
 `gaplike` needs only `numpy` and `scipy`.
 
 ```bash
-git clone https://github.com/gaplike/gaplike
-cd gaplike
-uv venv && uv pip install -e .
+pip install gaplike
 ```
 
-Plain `pip` works identically — there is nothing uv-specific in the package.
+That is everything the package itself needs: all the likelihoods, the gap
+builders, the windowed covariances and the matrix-free conjugate-gradient
+solver. Install from a clone instead only if you also want the paper
+reproduction pipeline in `paper/`, the notebooks, or the test suite:
+
+```bash
+git clone https://github.com/gaplike/gaplike
+cd gaplike && pip install -e ".[pe,dev]"
+```
+
+`uv pip` can be substituted for `pip` throughout — there is nothing
+uv-specific in the package. Whichever you choose, install and run from the
+*same* environment; mixing the two is the commonest way to lose an afternoon
+here.
 
 ## Extras
 
@@ -20,7 +31,8 @@ Plain `pip` works identically — there is nothing uv-specific in the package.
 | `mbhb` | `lisabeta` | the MBHB waveform adapter only |
 
 ```bash
-uv pip install -e ".[pe,dev]"
+pip install "gaplike[pe]"       # from PyPI
+pip install -e ".[pe,dev]"      # from a clone
 ```
 
 ## The MBHB waveform adapter
@@ -32,22 +44,24 @@ factory — so every likelihood, every gap builder, the conjugate-gradient
 solver and all the chain-based paper figures work without it.
 
 ```bash
-uv pip install -e ".[pe,mbhb]"
+pip install "gaplike[pe,mbhb]"
 ```
 
-If you would rather build the GitLab sources than install from PyPI, note that
-the build runs CMake and needs FFTW present first:
+Installing lisabeta from PyPI gives wheels. If you would rather build the
+GitLab sources, the build runs CMake and needs FFTW present first:
 
 ```bash
 brew install fftw          # macOS;  apt install libfftw3-dev on Debian/Ubuntu
 SKBUILD_CMAKE_DEFINE="FFTW_ROOT=$(brew --prefix fftw)" \
-  uv pip install "lisabeta @ git+https://gitlab.in2p3.fr/marsat/lisabeta.git"
+  pip install "lisabeta @ git+https://gitlab.in2p3.fr/marsat/lisabeta.git"
 ```
 
 ## Tests
 
+These need a clone, since the test data lives in `tests/`.
+
 ```bash
-uv pip install -e ".[dev]"
+pip install -e ".[dev]"
 pytest
 ```
 
@@ -59,7 +73,9 @@ its waveform fingerprint is skipped without lisabeta.
 
 ## Building the documentation
 
+Also from a clone.
+
 ```bash
-uv pip install -e ".[docs]"
+pip install -e ".[docs]"
 sphinx-build -b html docs docs/_build/html
 ```

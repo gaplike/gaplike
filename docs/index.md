@@ -20,9 +20,11 @@ noise and signal parameter inference"* (O. Burke, F. Pozzoli & M. Muratore). The
 directory reproduces every figure of that work.
 
 ```bash
-git clone https://github.com/gaplike/gaplike
-cd gaplike && uv pip install -e ".[pe]"
+pip install gaplike
 ```
+
+Clone the repository instead if you also want the `paper/` reproduction
+pipeline or the notebooks — see [Installation](installation.md).
 
 ## Why gaps are not a detail
 

@@ -23,8 +23,8 @@ authors:
   - family-names: Muratore
     given-names: Martina
     affiliation: "Max Planck Institute for Gravitational Physics (Albert Einstein Institute), Potsdam, Germany"
-version: 0.1.0
-date-released: "2026-08-25"
+version: 0.2.0
+date-released: "2026-08-28"
 license: MIT
 repository-code: "https://github.com/gaplike/gaplike"
 url: "https://gaplike.github.io/gaplike/"
